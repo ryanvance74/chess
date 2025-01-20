@@ -3,6 +3,10 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
+interface checkDirectionCondition {
+    boolean isValid(int x, int y);
+}
+
 /**
  * Represents a single chess piece
  * <p>
@@ -54,61 +58,77 @@ public class ChessPiece {
         Collection<ChessMove> moves = new ArrayList<>();
         int currRow = myPosition.getRow();
         int currCol = myPosition.getColumn();
-        Collection<int[]> directionArray = new ArrayList<>();
+        Collection<int[]> generalDirectionArray = new ArrayList<>();
         for (int x = -1; x < 2; x++) {
             for (int y = -1; y < 2; y++) {
                 if (!(x == 0 && y == 0)) {
-                    directionArray.add(new int[]{x,y});
+                    generalDirectionArray.add(new int[]{x,y});
                 }
             }
         }
+        checkDirectionCondition preApprovedDirections = (x,y) -> true;
         switch (pieceType) {
             case KING:
-                /*
-                (-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)
-                 */
-
-                for (int[] direction : directionArray) {
-                    boolean[] result = checkDirection(board, currRow, currCol, teamColor, direction);
-                    if (result[0]) {
-                        ChessPosition newPosition = new ChessPosition(currRow + direction[0], currCol + direction[1]);
-                        moves.add(new ChessMove(myPosition, newPosition, null));
-                    }
-                }
+                checkDirectionCondition kingDirections = (x,y) -> true;
+                calculatePieceMoves(board, moves, generalDirectionArray, kingDirections, myPosition, "no");
             case QUEEN:
-                /*
-                (-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)
-                 */
-                for (int[] direction : directionArray) {
-                    int[] scaledDirection = new int[]{direction[0], direction[1]};
-                    while (true) {
-                        boolean[] result = checkDirection(board, currRow, currCol, teamColor, scaledDirection);
-                        if (result[0]) {
-                            ChessPosition newPosition = new ChessPosition(currRow + scaledDirection[0], currCol + scaledDirection[1]);
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                            scaledDirection[0] += direction[0];
-                            scaledDirection[1] += direction[1];
-                            if (!result[1]) {break;}
-                        } else {
-                            break;
-                        }
-                    }
-                }
+                checkDirectionCondition queenDirections = (x,y) -> true;
+                calculatePieceMoves(board, moves, generalDirectionArray, queenDirections, myPosition, "yes");
             case BISHOP:
-
+                checkDirectionCondition bishopDirections = (x,y) -> (Math.abs(x)+Math.abs(y)) == 2;
+                calculatePieceMoves(board, moves, generalDirectionArray, bishopDirections, myPosition, "yes");
             case KNIGHT:
-                break;
+                Collection<int[]> knightDirectionArray = new ArrayList<>();
+                // refactor this
+                knightDirectionArray.add(new int[]{-1,2});
+                knightDirectionArray.add(new int[]{1,2});
+                knightDirectionArray.add(new int[]{-1,-2});
+                knightDirectionArray.add(new int[]{1,-2});
+                knightDirectionArray.add(new int[]{-2,1});
+                knightDirectionArray.add(new int[]{-2,-1});
+                knightDirectionArray.add(new int[]{2,1});
+                knightDirectionArray.add(new int[]{2,-1});
+                calculatePieceMoves(board, moves, knightDirectionArray, preApprovedDirections, myPosition, "no");
             case ROOK:
-                break;
+                checkDirectionCondition rookDirections = (x,y) -> x == 0 || y == 0;
+                calculatePieceMoves(board, moves, generalDirectionArray, rookDirections, myPosition, "yes");
             case PAWN:
-                break;
+                Collection<int[]> pawnDirectionArray = new ArrayList<>();
+                pawnDirectionArray.add(new int[]{0,1});
+                pawnDirectionArray.add(new int[]{0,2});
+                checkDirectionCondition pawnDirections = (x,y) -> x == 0 && (y == 1 || y == 2);
+                calculatePieceMoves(board, moves, pawnDirectionArray, pawnDirections, myPosition, "pawn");
         }
+        return moves;
+    }
 
+
+    private void calculatePieceMoves(ChessBoard board, Collection<ChessMove> moves, Collection<int[]> directionArray, checkDirectionCondition pieceDirection, ChessPosition myPosition, String extendable) {
+        for (int[] direction : directionArray) {
+            if (pieceDirection.isValid(direction[0],direction[1])) {
+                int[] scaledDirection = new int[]{direction[0], direction[1]};
+                while (true) {
+                    boolean[] result = checkDirection(board, myPosition.Row, myPosition.Col, teamColor, scaledDirection);
+                    if (result[0]) {
+                        ChessPosition newPosition = new ChessPosition(myPosition.Row + scaledDirection[0], myPosition.Col + scaledDirection[1]);
+                        moves.add(new ChessMove(myPosition, newPosition, null));
+                        scaledDirection[0] += direction[0];
+                        scaledDirection[1] += direction[1];
+                        if (!result[1] && extendable.equals("pawn")) {return;}
+                        else if (!result[1]) {break;}
+                    } else {
+                        break;
+                    }
+                    if (extendable.equals("no")) {break;}
+                }
+            }
+
+        }
     }
 
     /**
      * @return Two booleans. First boolean is whether you can move to the position. Second boolean is whether you could potentially go further.
-     * You cannot go further if there is a piece blocking you. If there is a piece blocking you and it is of the opposite color then you can move there
+     * You cannot go further if there is a piece blocking you. If there is a piece blocking you, and it is of the opposite color then you can move there
      * but not further.
      */
     private boolean[] checkDirection(ChessBoard board, int currRow, int currCol, ChessGame.TeamColor myColor, int[] direction) {
