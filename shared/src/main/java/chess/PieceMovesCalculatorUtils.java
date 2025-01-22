@@ -8,7 +8,7 @@ public final class PieceMovesCalculatorUtils {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessGame.TeamColor myColor = board.getPiece(position).teamColor;
         for (int[] direction : directionArray) {
-            int[] scaledDirection = new int[]{direction[0], direction[1]};
+            int[] scaledDirection = {direction[0], direction[1]};
             while (true) {
                 if (OutOfBounds(position.getRow(), position.getColumn(), scaledDirection)) {break;}
                 ChessPosition testPosition = new ChessPosition(position.getRow() + direction[0], position.getColumn() + direction[1]);

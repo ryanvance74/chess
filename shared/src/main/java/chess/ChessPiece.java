@@ -56,40 +56,15 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int currRow = myPosition.getRow();
-        int currCol = myPosition.getColumn();
-        Collection<int[]> generalDirectionArray = new ArrayList<>();
-        for (int x = -1; x < 2; x++) {
-            for (int y = -1; y < 2; y++) {
-                if (!(x == 0 && y == 0)) {
-                    generalDirectionArray.add(new int[]{x,y});
-                }
-            }
-        }
-    }
-
-
-
-
-    /**
-     * @return Two booleans. First boolean is whether you can move to the position. Second boolean is whether you could potentially go further.
-     * You cannot go further if there is a piece blocking you. If there is a piece blocking you, and it is of the opposite color then you can move there
-     * but not further.
-     */
-    private boolean[] checkDirection(ChessBoard board, int currRow, int currCol, ChessGame.TeamColor myColor, int[] direction) {
-        ChessPosition testPosition = new ChessPosition(currRow + direction[0], currCol + direction[1]);
-        ChessPiece piece = board.getPiece(testPosition);
-        if (piece != null) {
-            if (piece.teamColor == myColor) {
-                return new boolean[]{false, false};
-            } else {
-                return new boolean[]{true, false};
-            }
-        } else {
-            return new boolean[]{true, true};
-        }
-
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
+        PieceMovesCalculator moves = switch (pieceType) {
+            case QUEEN -> new QueenMovesCalculator();
+            case KING -> new KingMovesCalculator();
+            case KNIGHT -> new KnightMovesCalculator();
+            case ROOK -> new RookMovesCalculator();
+            case PAWN -> new PawnMovesCalculator();
+            case BISHOP -> new BishopMovesCalculator();
+        };
+        return moves.pieceMoves(board, position);
     }
 }

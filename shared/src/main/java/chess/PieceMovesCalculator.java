@@ -108,10 +108,7 @@ class RookMovesCalculator implements PieceMovesCalculator {
 
 class PawnMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        ChessGame.TeamColor myColor = board.getPiece(position).teamColor;
-
-
+        return PieceMovesCalculatorUtils.PawnMoves(board, position);
     }
 
 }
