@@ -11,15 +11,15 @@ public final class PieceMovesCalculatorUtils {
             int[] scaledDirection = {direction[0], direction[1]};
             while (true) {
                 if (OutOfBounds(position.getRow(), position.getColumn(), scaledDirection)) {break;}
-                ChessPosition testPosition = new ChessPosition(position.getRow() + direction[0], position.getColumn() + direction[1]);
+                ChessPosition testPosition = new ChessPosition(position.getRow() + scaledDirection[0], position.getColumn() + scaledDirection[1]);
                 ChessPiece testPiece = board.getPiece(testPosition);
                 if (testPiece != null) {
                     if (testPiece.teamColor != myColor) {
-                        moves.add(new ChessMove(testPosition, testPosition, null));
+                        moves.add(new ChessMove(position, testPosition, null));
                     }
                     break;
                 } else {
-                    moves.add(new ChessMove(testPosition, testPosition, null));
+                    moves.add(new ChessMove(position, testPosition, null));
                     scaledDirection[0] += direction[0];
                     scaledDirection[1] += direction[1];
                 }
@@ -35,7 +35,7 @@ public final class PieceMovesCalculatorUtils {
         int orientation = myColor == ChessGame.TeamColor.WHITE ? 1 : -1;
 
         boolean check_ahead = AddPawnMoves(board, moves, position, new int[]{orientation, 0}, false);
-        if (check_ahead && ((position.getRow() == 7 && myColor == ChessGame.TeamColor.WHITE) || (position.getRow() == 2 && myColor == ChessGame.TeamColor.BLACK))) {
+        if (check_ahead && ((position.getRow() == 7 && myColor == ChessGame.TeamColor.BLACK) || (position.getRow() == 2 && myColor == ChessGame.TeamColor.WHITE))) {
             AddPawnMoves(board, moves, position, new int[]{2*orientation, 0}, false);
         }
 
@@ -45,7 +45,7 @@ public final class PieceMovesCalculatorUtils {
 
     }
 
-    private static boolean AddPawnMoves(ChessBoard board, Collection<ChessMove> moves, ChessPosition position, int[] direction, boolean mustTake) {
+    private static boolean AddPawnMoves(ChessBoard board, Collection<ChessMove> moves, ChessPosition position, int[] direction, boolean canTake) {
         boolean check_ahead = false;
         //printLoop(position.getRow(), position.getColumn(), direction);
         if (OutOfBounds(position.getRow(), position.getColumn(), new int[]{direction[0], direction[1]})) {
@@ -58,28 +58,26 @@ public final class PieceMovesCalculatorUtils {
 
 
         if (testPiece != null) {
+            if (!canTake) {return check_ahead;}
             if (testPiece.teamColor != myColor) {
                 if (testPosition.getRow() == 1 || testPosition.getRow() == 8) {
-                    moves.add(new ChessMove(testPosition, testPosition, null));
-                    moves.add(new ChessMove(testPosition, testPosition, ChessPiece.PieceType.ROOK));
-                    moves.add(new ChessMove(testPosition, testPosition, ChessPiece.PieceType.KNIGHT));
-                    moves.add(new ChessMove(testPosition, testPosition, ChessPiece.PieceType.BISHOP));
-                    moves.add(new ChessMove(testPosition, testPosition, ChessPiece.PieceType.QUEEN));
+                    moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.ROOK));
+                    moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.KNIGHT));
+                    moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.BISHOP));
+                    moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.QUEEN));
                 } else {
-                    moves.add(new ChessMove(testPosition, testPosition, null));
+                    moves.add(new ChessMove(position, testPosition, null));
                 }
             }
         } else {
-            if (mustTake) {return false;}
-            moves.add(new ChessMove(testPosition, testPosition, null));
+            if (canTake) {return false;}
             if (testPosition.getRow() == 1 || testPosition.getRow() == 8) {
-                moves.add(new ChessMove(testPosition, testPosition, null));
-                moves.add(new ChessMove(testPosition, testPosition, ChessPiece.PieceType.ROOK));
-                moves.add(new ChessMove(testPosition, testPosition, ChessPiece.PieceType.KNIGHT));
-                moves.add(new ChessMove(testPosition, testPosition, ChessPiece.PieceType.BISHOP));
-                moves.add(new ChessMove(testPosition, testPosition, ChessPiece.PieceType.QUEEN));
+                moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.ROOK));
+                moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.KNIGHT));
+                moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.BISHOP));
+                moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.QUEEN));
             } else {
-                moves.add(new ChessMove(testPosition, testPosition, null));
+                moves.add(new ChessMove(position, testPosition, null));
                 check_ahead = true;
             }
 
