@@ -31,8 +31,8 @@ public class ChessBoardTests {
     @Test
     @DisplayName("Reset Board")
     public void defaultGameBoard() {
+        startTest();
         var expectedBoard = TestUtilities.defaultBoard();
-
         var actualBoard = new ChessBoard();
         actualBoard.resetBoard();
 
@@ -43,6 +43,7 @@ public class ChessBoardTests {
     @Test
     @DisplayName("Piece Move on All Pieces")
     public void pieceMoveAllPieces() {
+
         var board = new ChessBoard();
         board.resetBoard();
         for(int i = 1; i <= 8; i++) {
@@ -54,6 +55,10 @@ public class ChessBoardTests {
                 }
             }
         }
+    }
+
+    private static void startTest() {
+        System.out.println("starting board test...");
     }
 
 }

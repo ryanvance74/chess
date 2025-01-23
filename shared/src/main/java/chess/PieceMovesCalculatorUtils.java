@@ -32,27 +32,31 @@ public final class PieceMovesCalculatorUtils {
     public static Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessGame.TeamColor myColor = board.getPiece(position).teamColor;
-        int orientation = myColor == ChessGame.TeamColor.WHITE ? 1 : -1;
+        int orientation = myColor == ChessGame.TeamColor.WHITE ? -1 : 1;
 
-        boolean check_ahead = AddPawnMoves(board, moves, position, new int[]{0, orientation}, false);
-        if (check_ahead && ((position.getRow() == 2 && myColor == ChessGame.TeamColor.WHITE) || (position.getRow() == 7 && myColor == ChessGame.TeamColor.BLACK))) {
-            AddPawnMoves(board, moves, position, new int[]{0, 2*orientation}, false);
+        boolean check_ahead = AddPawnMoves(board, moves, position, new int[]{orientation, 0}, false);
+        if (check_ahead && ((position.getRow() == 7 && myColor == ChessGame.TeamColor.WHITE) || (position.getRow() == 2 && myColor == ChessGame.TeamColor.BLACK))) {
+            AddPawnMoves(board, moves, position, new int[]{2*orientation, 0}, false);
         }
-        AddPawnMoves(board, moves, position, new int[]{-1, orientation}, true);
-        AddPawnMoves(board, moves, position, new int[]{1, orientation}, true);
+
+        AddPawnMoves(board, moves, position, new int[]{orientation, -1}, true);
+        AddPawnMoves(board, moves, position, new int[]{orientation, 1}, true);
         return moves;
 
     }
 
     private static boolean AddPawnMoves(ChessBoard board, Collection<ChessMove> moves, ChessPosition position, int[] direction, boolean mustTake) {
         boolean check_ahead = false;
+        //printLoop(position.getRow(), position.getColumn(), direction);
+        if (OutOfBounds(position.getRow(), position.getColumn(), new int[]{direction[0], direction[1]})) {
+            return false;
+        }
         ChessGame.TeamColor myColor = board.getPiece(position).teamColor;
+
         ChessPosition testPosition = new ChessPosition(position.getRow()+direction[0],position.getColumn()+direction[1]);
         ChessPiece testPiece = board.getPiece(testPosition);
 
-        if (!OutOfBounds(position.getRow(), position.getColumn(), new int[]{direction[0], direction[1]})) {
-            return false;
-        }
+
         if (testPiece != null) {
             if (testPiece.teamColor != myColor) {
                 if (testPosition.getRow() == 1 || testPosition.getRow() == 8) {
@@ -83,11 +87,16 @@ public final class PieceMovesCalculatorUtils {
         return check_ahead;
     }
 
+    private static void printLoop(int i, int j, int[] direction) {
+        System.out.println("i,j = " + i + "," + j + " with direction: [" + direction[0] + "," + direction[1] + "]");
+    }
+
 
 
     private static boolean OutOfBounds(int row, int col, int[] direction) {
         int newRow = row + direction[0];
         int newCol = col + direction[1];
+        //printLoop(row-1, col-1, direction);
         return newRow < 1 || newRow > 8 || newCol < 1 || newCol > 8;
     }
 }
