@@ -2,11 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-
-
-
-
+import java.util.Objects;
 
 
 /**
@@ -21,6 +17,20 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         pieceType = type;
         teamColor = pieceColor;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceType == that.pieceType && teamColor == that.teamColor;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceType, teamColor);
     }
 
     /**

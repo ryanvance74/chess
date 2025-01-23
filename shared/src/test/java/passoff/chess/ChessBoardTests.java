@@ -31,7 +31,6 @@ public class ChessBoardTests {
     @Test
     @DisplayName("Reset Board")
     public void defaultGameBoard() {
-        startTest();
         var expectedBoard = TestUtilities.defaultBoard();
         var actualBoard = new ChessBoard();
         actualBoard.resetBoard();
@@ -55,10 +54,6 @@ public class ChessBoardTests {
                 }
             }
         }
-    }
-
-    private static void startTest() {
-        System.out.println("starting board test...");
     }
 
 }

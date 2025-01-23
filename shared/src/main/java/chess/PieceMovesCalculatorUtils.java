@@ -32,7 +32,7 @@ public final class PieceMovesCalculatorUtils {
     public static Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessGame.TeamColor myColor = board.getPiece(position).teamColor;
-        int orientation = myColor == ChessGame.TeamColor.WHITE ? -1 : 1;
+        int orientation = myColor == ChessGame.TeamColor.WHITE ? 1 : -1;
 
         boolean check_ahead = AddPawnMoves(board, moves, position, new int[]{orientation, 0}, false);
         if (check_ahead && ((position.getRow() == 7 && myColor == ChessGame.TeamColor.WHITE) || (position.getRow() == 2 && myColor == ChessGame.TeamColor.BLACK))) {
