@@ -46,30 +46,44 @@ public class ChessBoard {
      */
     public void resetBoard() {
         board = new ChessPiece[8][8];
-        board[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
-        board[0][1] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
-        board[0][2] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
-        board[0][3] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
-        board[0][4] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
-        board[0][5] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
-        board[0][6] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
-        board[0][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
-        for (int col = 0; col < 8; col++) {
-            board[1][col] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-        }
-        for (int col = 0; col < 8; col++) {
-            board[6][col] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        }
-        board[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
-        board[7][1] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
-        board[7][2] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
-        board[7][3] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
-        board[7][4] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
-        board[7][5] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
-        board[7][6] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
-        board[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
-        //printBoard(board);
+        populateBoard(board, ChessGame.TeamColor.WHITE, false);
+        populateBoard(board, ChessGame.TeamColor.WHITE, true);
+        populateBoard(board, ChessGame.TeamColor.BLACK, false);
+        populateBoard(board, ChessGame.TeamColor.BLACK, true);
     }
+
+    private void populateBoard(ChessPiece[][] board, ChessGame.TeamColor color, boolean pawns) {
+        int row;
+        if (color == ChessGame.TeamColor.WHITE && pawns) {
+            row = 1;
+        } else if (color == ChessGame.TeamColor.WHITE) {
+            row = 0;
+        } else if (pawns) {
+            row = 6;
+        } else {
+            row = 7;
+        }
+        if (pawns) {
+            for (int col = 0; col < 8; col++) {
+                board[row][col] = new ChessPiece(color, ChessPiece.PieceType.PAWN);
+            }
+        } else {
+            for (int col = 0; col < 8; col++) {
+                board[row][col] = new ChessPiece(color, boardPieceMap.get((char)(col+'0')));
+            }
+        }
+    }
+
+    private static final Map<Character, ChessPiece.PieceType> boardPieceMap = Map.of(
+            '0', ChessPiece.PieceType.ROOK,
+            '1', ChessPiece.PieceType.KNIGHT,
+            '2', ChessPiece.PieceType.BISHOP,
+            '3', ChessPiece.PieceType.QUEEN,
+            '4', ChessPiece.PieceType.KING,
+            '5', ChessPiece.PieceType.BISHOP,
+            '6', ChessPiece.PieceType.KNIGHT,
+            '7', ChessPiece.PieceType.ROOK
+    );
 
 
     private static void printTest(String str) {

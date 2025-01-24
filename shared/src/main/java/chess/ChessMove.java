@@ -9,28 +9,28 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessMove {
-    ChessPosition start;
-    ChessPosition end;
-    ChessPiece.PieceType promoteTo;
+    ChessPosition startPosition;
+    ChessPosition endPosition;
+    ChessPiece.PieceType promotionPiece;
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
-        start = startPosition;
-        end = endPosition;
-        promoteTo = promotionPiece;
+        this.startPosition = startPosition;
+        this.endPosition = endPosition;
+        this.promotionPiece = promotionPiece;
     }
 
     /**
      * @return ChessPosition of starting location
      */
     public ChessPosition getStartPosition() {
-        return start;
+        return this.startPosition;
     }
 
     /**
      * @return ChessPosition of ending location
      */
     public ChessPosition getEndPosition() {
-        return end;
+        return this.endPosition;
     }
 
     /**
@@ -40,7 +40,7 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        return promoteTo;
+        return this.promotionPiece;
     }
 
     @Override
@@ -49,11 +49,11 @@ public class ChessMove {
             return false;
         }
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && promoteTo == chessMove.promoteTo;
+        return Objects.equals(this.startPosition, chessMove.startPosition) && Objects.equals(this.endPosition, chessMove.endPosition) && this.promotionPiece == chessMove.promotionPiece;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(start, end, promoteTo);
+        return Objects.hash(this.startPosition, this.endPosition, this.promotionPiece);
     }
 }
