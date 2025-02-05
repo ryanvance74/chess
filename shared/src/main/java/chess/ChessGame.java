@@ -118,27 +118,7 @@ public class ChessGame {
         ChessPosition testPosition;
         ChessPiece testPiece;
         Collection<ChessMove> testMoves;
-        for (int i=1; i < 9; i++) {
-            for (int j=1; i < 9; i++) {
-                testPosition = new ChessPosition(i,j);
-                testPiece = this.board.getPiece(testPosition);
-                if (testPiece == null || testPiece.getTeamColor() != teamColor) {continue;}
-                testMoves = testPiece.pieceMoves(this.board, testPosition);
-                if (testMoves.isEmpty()) {continue;}
-                for (ChessMove forwardMove : testMoves) {
-                    ChessPiece targetPiece = this.board.getPiece(forwardMove.getEndPosition());
-                    ChessMove reverseMove = new ChessMove(forwardMove.getEndPosition(), forwardMove.getStartPosition(), null);
-                    this.makeMove(forwardMove);
-                    boolean validMove = !this.isInCheck(teamColor);
-                    this.makeMove(reverseMove);
-                    this.board.addPiece(forwardMove.getEndPosition(), targetPiece);
-                    if (validMove) {
-                        return false;
-                    }
-                }
-
-            }
-        }
+        // TODO
         return true;
     }
 
@@ -162,10 +142,43 @@ public class ChessGame {
 
     private Collection<Collection<ChessMove>> getAllValidMoves(TeamColor teamColor) {
         // double for loop
+        Collection<Collection<ChessMove>> multiplePiecesValidMoves = new ArrayList<>();
+        ChessPosition testPosition;
+        ChessPiece testPiece;
+        Collection<Collection<ChessMove>> allTestMoves = getAllMoves(teamColor);
+
+        for (Collection<ChessMove> singlePieceMoves : allTestMoves) {
+            Collection<ChessMove> singlePieceValidMoves = new ArrayList<>();
+            for (ChessMove testMove : singlePieceMoves) {
+                if (validateSingleMove(testMove, teamColor)) {
+                    singlePieceValidMoves.add(testMove);
+                    singlePieceValidMoves.add(testMove);
+                }
+            }
+            multiplePiecesValidMoves.add(singlePieceValidMoves);
+
+        }
+
+
+        return multiplePiecesValidMoves;
     }
 
     private Collection<Collection<ChessMove>> getAllMoves(TeamColor teamColor) {
+        Collection<Collection<ChessMove>> allMoves = new ArrayList<>();
+        ChessPosition testPosition;
+        ChessPiece testPiece;
+        for (int i=1; i < 9; i++) {
+            for (int j=1; i < 9; i++) {
+                testPosition = new ChessPosition(i,j);
+                testPiece = this.board.getPiece(testPosition);
 
+                if (testPiece == null || testPiece.getTeamColor() != teamColor) {continue;}
+                Collection<ChessMove> singlePieceMoves = testPiece.pieceMoves(this.board, testPosition);
+
+                allMoves.add(singlePieceMoves);
+            }
+        }
+        return allMoves;
     }
 
     private boolean deepEmpty(Collection<Collection<ChessMove>> pieceSet) {
@@ -175,7 +188,13 @@ public class ChessGame {
         return true;
     }
 
-    private boolean validateSingleMove(ChessMove move) {
-
+    private boolean validateSingleMove(ChessMove move, TeamColor teamColor) {
+        ChessMove reverseMove = new ChessMove(move.getEndPosition(), move.getStartPosition(), null);
+        ChessPiece targetPiece = board.getPiece(move.getEndPosition());
+        makeMove(move);
+        boolean validMove = !isInCheck(teamColor);
+        makeMove(reverseMove);
+        board.addPiece(move.getEndPosition(), targetPiece);
+        return validMove;
     }
 }
