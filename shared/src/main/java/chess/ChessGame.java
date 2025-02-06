@@ -16,6 +16,7 @@ public class ChessGame {
     public ChessGame() {
         this.setTeamTurn(TeamColor.WHITE);
         this.board = new ChessBoard();
+        board.resetBoard();
     }
 
     /**
@@ -63,7 +64,8 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
-    public Collection<ChessMove> validMoves(ChessPosition startPosition, TeamColor teamColor) {
+    public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        TeamColor teamColor = board.getPiece(startPosition).getTeamColor();
         Collection<ChessMove> goodMoves = new ArrayList<>();
         if (startPosition == null) {return null;}
         ChessPiece testPiece = board.getPiece(startPosition);
@@ -97,12 +99,13 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        TeamColor opposingTeamColor = TeamColor.values()[teamColor.ordinal() + 1 % 2];
+        TeamColor opposingTeamColor = TeamColor.values()[(teamColor.ordinal() + 1) % 2];
 
         // use getAllMoves instead of getAllValidMoves because it doesn't matter if the piece can actually execute
         // the move. It is just the threat of the move that makes a check.
         Collection<ChessMove> opposingPieceSet = getAllMoves(opposingTeamColor);
         for (ChessMove testMove : opposingPieceSet) {
+            if (board.getPiece(testMove.getEndPosition()) == null) {continue;}
             if (board.getPiece(testMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
                 return true;
             }
@@ -137,7 +140,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        board.resetBoard();
+        this.board = board;
     }
 
     /**
@@ -188,15 +191,19 @@ public class ChessGame {
     private boolean validateSingleMove(ChessMove move, TeamColor teamColor) {
         ChessMove reverseMove = new ChessMove(move.getEndPosition(), move.getStartPosition(), null);
         ChessPiece targetPiece = board.getPiece(move.getEndPosition());
-        try {
-            makeMove(move);
-            boolean validMove = !isInCheck(teamColor);
-            makeMove(reverseMove);
-            board.addPiece(move.getEndPosition(), targetPiece);
-            return validMove;
-        } catch (InvalidMoveException e) {
-            return false;
-        }
 
+        privateMakeMove(move);
+        boolean validMove = !isInCheck(teamColor);
+        privateMakeMove(reverseMove);
+        board.addPiece(move.getEndPosition(), targetPiece);
+        return validMove;
+
+    }
+
+    public void privateMakeMove(ChessMove move) {
+        TeamColor color = board.getPiece(move.getStartPosition()).getTeamColor();
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        board.addPiece(move.getEndPosition(), piece);
+        board.addPiece(move.getStartPosition(), null);
     }
 }
