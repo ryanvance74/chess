@@ -67,7 +67,6 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         TeamColor teamColor = board.getPiece(startPosition).getTeamColor();
         Collection<ChessMove> goodMoves = new ArrayList<>();
-        if (startPosition == null) {return null;}
         ChessPiece testPiece = board.getPiece(startPosition);
         Collection<ChessMove> testMoves = testPiece.pieceMoves(board, startPosition);
         for (ChessMove move : testMoves) {
@@ -162,10 +161,7 @@ public class ChessGame {
     }
 
     private Collection<ChessMove> getAllValidMoves(TeamColor teamColor) {
-        // double for loop
         Collection<ChessMove> allValidMoves = new ArrayList<>();
-        ChessPosition testPosition;
-        ChessPiece testPiece;
         Collection<ChessMove> allTestMoves = getAllMoves(teamColor);
 
         for (ChessMove testMove : allTestMoves) {
@@ -222,7 +218,6 @@ public class ChessGame {
     }
 
     public void privateMakeMove(ChessMove move) {
-        TeamColor color = board.getPiece(move.getStartPosition()).getTeamColor();
         ChessPiece piece = board.getPiece(move.getStartPosition());
         board.addPiece(move.getEndPosition(), piece);
         board.addPiece(move.getStartPosition(), null);
