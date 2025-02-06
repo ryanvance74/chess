@@ -85,11 +85,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        TeamColor color = board.getPiece(move.getStartPosition()).getTeamColor();
-        if (!validateSingleMove(move, color)) {throw new InvalidMoveException();}
+        if (board.getPiece(move.getStartPosition()) == null) {throw new InvalidMoveException();}
+        TeamColor pieceColor = board.getPiece(move.getStartPosition()).getTeamColor();
+        if (!validateSingleMove(move, pieceColor)) {throw new InvalidMoveException();}
         ChessPiece piece = board.getPiece(move.getStartPosition());
         board.addPiece(move.getEndPosition(), piece);
         board.addPiece(move.getStartPosition(), null);
+        this.teamTurn = TeamColor.values()[(teamTurn.ordinal() + 1) % 2];
+
     }
 
     /**
@@ -176,7 +179,7 @@ public class ChessGame {
         ChessPosition testPosition;
         ChessPiece testPiece;
         for (int i=1; i < 9; i++) {
-            for (int j=1; i < 9; i++) {
+            for (int j=1; j < 9; j++) {
                 testPosition = new ChessPosition(i,j);
                 testPiece = this.board.getPiece(testPosition);
 
@@ -189,14 +192,26 @@ public class ChessGame {
     }
 
     private boolean validateSingleMove(ChessMove move, TeamColor teamColor) {
+        if (teamColor != teamTurn) {return false;}
+        ChessPiece startingPiece = board.getPiece(move.getStartPosition());
+        Collection<ChessMove> pieceMoves = startingPiece.pieceMoves(board, move.getStartPosition());
+        boolean foundMove = false;
+        for (ChessMove testMove : pieceMoves) {
+            if (move.equals(testMove)) {
+                foundMove = true;
+                break;
+            }
+        }
+        if (!foundMove) {return false;}
         ChessMove reverseMove = new ChessMove(move.getEndPosition(), move.getStartPosition(), null);
+
         ChessPiece targetPiece = board.getPiece(move.getEndPosition());
 
         privateMakeMove(move);
-        boolean validMove = !isInCheck(teamColor);
+        boolean notInCheck = !isInCheck(teamColor);
         privateMakeMove(reverseMove);
         board.addPiece(move.getEndPosition(), targetPiece);
-        return validMove;
+        return notInCheck;
 
     }
 
