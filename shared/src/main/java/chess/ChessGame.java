@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -33,6 +34,20 @@ public class ChessGame {
         this.teamTurn = team;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return teamTurn == chessGame.teamTurn && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamTurn, board);
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -48,13 +63,13 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
-    public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+    public Collection<ChessMove> validMoves(ChessPosition startPosition, TeamColor teamColor) {
         Collection<ChessMove> goodMoves = new ArrayList<>();
         if (startPosition == null) {return null;}
         ChessPiece testPiece = board.getPiece(startPosition);
         Collection<ChessMove> testMoves = testPiece.pieceMoves(board, startPosition);
         for (ChessMove move : testMoves) {
-            if (validateSingleMove(move)) {
+            if (validateSingleMove(move, teamColor)) {
                 goodMoves.add(move);
             }
         }
@@ -68,11 +83,11 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if (!validateSingleMove(move)) {throw Exception.InvalidMoveException;}
+        TeamColor color = board.getPiece(move.getStartPosition()).getTeamColor();
+        if (!validateSingleMove(move, color)) {throw new InvalidMoveException();}
         ChessPiece piece = board.getPiece(move.getStartPosition());
         board.addPiece(move.getEndPosition(), piece);
         board.addPiece(move.getStartPosition(), null);
-
     }
 
     /**
@@ -86,12 +101,10 @@ public class ChessGame {
 
         // use getAllMoves instead of getAllValidMoves because it doesn't matter if the piece can actually execute
         // the move. It is just the threat of the move that makes a check.
-        Collection<Collection<ChessMove>> opposingPieceSet = getAllMoves(opposingTeamColor);
-        for (Collection<ChessMove> testMoveSet : opposingPieceSet) {
-            for (ChessMove testMove : testMoveSet) {
-                if (board.getPiece(testMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
-                    return true;
-                }
+        Collection<ChessMove> opposingPieceSet = getAllMoves(opposingTeamColor);
+        for (ChessMove testMove : opposingPieceSet) {
+            if (board.getPiece(testMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
+                return true;
             }
         }
         return false;
@@ -104,7 +117,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return isInCheck(teamColor) && deepEmpty(getAllValidMoves(teamColor));
+        return isInCheck(teamColor) && getAllValidMoves(teamColor).isEmpty();
     }
 
     /**
@@ -115,11 +128,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        ChessPosition testPosition;
-        ChessPiece testPiece;
-        Collection<ChessMove> testMoves;
-        // TODO
-        return true;
+        return getAllValidMoves(teamColor).isEmpty() && !isInCheck(teamColor);
     }
 
     /**
@@ -140,31 +149,27 @@ public class ChessGame {
         return this.board;
     }
 
-    private Collection<Collection<ChessMove>> getAllValidMoves(TeamColor teamColor) {
+    private Collection<ChessMove> getAllValidMoves(TeamColor teamColor) {
         // double for loop
-        Collection<Collection<ChessMove>> multiplePiecesValidMoves = new ArrayList<>();
+        Collection<ChessMove> allValidMoves = new ArrayList<>();
         ChessPosition testPosition;
         ChessPiece testPiece;
-        Collection<Collection<ChessMove>> allTestMoves = getAllMoves(teamColor);
+        Collection<ChessMove> allTestMoves = getAllMoves(teamColor);
 
-        for (Collection<ChessMove> singlePieceMoves : allTestMoves) {
-            Collection<ChessMove> singlePieceValidMoves = new ArrayList<>();
-            for (ChessMove testMove : singlePieceMoves) {
-                if (validateSingleMove(testMove, teamColor)) {
-                    singlePieceValidMoves.add(testMove);
-                    singlePieceValidMoves.add(testMove);
-                }
+        for (ChessMove testMove : allTestMoves) {
+
+            if (validateSingleMove(testMove, teamColor)) {
+                allValidMoves.add(testMove);
             }
-            multiplePiecesValidMoves.add(singlePieceValidMoves);
 
         }
 
 
-        return multiplePiecesValidMoves;
+        return allValidMoves;
     }
 
-    private Collection<Collection<ChessMove>> getAllMoves(TeamColor teamColor) {
-        Collection<Collection<ChessMove>> allMoves = new ArrayList<>();
+    private Collection<ChessMove> getAllMoves(TeamColor teamColor) {
+        Collection<ChessMove> allMoves = new ArrayList<>();
         ChessPosition testPosition;
         ChessPiece testPiece;
         for (int i=1; i < 9; i++) {
@@ -174,27 +179,24 @@ public class ChessGame {
 
                 if (testPiece == null || testPiece.getTeamColor() != teamColor) {continue;}
                 Collection<ChessMove> singlePieceMoves = testPiece.pieceMoves(this.board, testPosition);
-
-                allMoves.add(singlePieceMoves);
+                allMoves.addAll(singlePieceMoves);
             }
         }
         return allMoves;
     }
 
-    private boolean deepEmpty(Collection<Collection<ChessMove>> pieceSet) {
-        for (Collection<ChessMove> moves : pieceSet) {
-            if (!moves.isEmpty()) {return false;}
-        }
-        return true;
-    }
-
     private boolean validateSingleMove(ChessMove move, TeamColor teamColor) {
         ChessMove reverseMove = new ChessMove(move.getEndPosition(), move.getStartPosition(), null);
         ChessPiece targetPiece = board.getPiece(move.getEndPosition());
-        makeMove(move);
-        boolean validMove = !isInCheck(teamColor);
-        makeMove(reverseMove);
-        board.addPiece(move.getEndPosition(), targetPiece);
-        return validMove;
+        try {
+            makeMove(move);
+            boolean validMove = !isInCheck(teamColor);
+            makeMove(reverseMove);
+            board.addPiece(move.getEndPosition(), targetPiece);
+            return validMove;
+        } catch (InvalidMoveException e) {
+            return false;
+        }
+
     }
 }
