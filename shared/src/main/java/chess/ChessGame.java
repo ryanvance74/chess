@@ -71,7 +71,7 @@ public class ChessGame {
         ChessPiece testPiece = board.getPiece(startPosition);
         Collection<ChessMove> testMoves = testPiece.pieceMoves(board, startPosition);
         for (ChessMove move : testMoves) {
-            if (validateSingleMove(move, teamColor)) {
+            if (validateSingleMove(move, teamColor, false)) {
                 goodMoves.add(move);
             }
         }
@@ -87,7 +87,7 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         if (board.getPiece(move.getStartPosition()) == null) {throw new InvalidMoveException();}
         TeamColor pieceColor = board.getPiece(move.getStartPosition()).getTeamColor();
-        if (!validateSingleMove(move, pieceColor)) {throw new InvalidMoveException();}
+        if (!validateSingleMove(move, pieceColor, true)) {throw new InvalidMoveException();}
         ChessPiece piece;
         if (move.getPromotionPiece() != null) {
             piece = new ChessPiece(teamTurn, move.getPromotionPiece());
@@ -170,7 +170,7 @@ public class ChessGame {
 
         for (ChessMove testMove : allTestMoves) {
 
-            if (validateSingleMove(testMove, teamColor)) {
+            if (validateSingleMove(testMove, teamColor, false)) {
                 allValidMoves.add(testMove);
             }
 
@@ -197,8 +197,8 @@ public class ChessGame {
         return allMoves;
     }
 
-    private boolean validateSingleMove(ChessMove move, TeamColor teamColor) {
-        if (teamColor != teamTurn) {return false;}
+    private boolean validateSingleMove(ChessMove move, TeamColor teamColor, boolean realAction) {
+        if (teamColor != teamTurn && realAction) {return false;}
         ChessPiece startingPiece = board.getPiece(move.getStartPosition());
         Collection<ChessMove> pieceMoves = startingPiece.pieceMoves(board, move.getStartPosition());
         boolean foundMove = false;
