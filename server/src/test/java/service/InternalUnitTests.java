@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Assertions;
 public class InternalUnitTests {
 
     @DisplayName("Clear Database")
+    @Test
     public void goodClear() {
-        ClearService clearService = new ClearService();
         MemoryUserDAO userDao = new MemoryUserDAO();
         MemoryGameDAO gameDao = new MemoryGameDAO();
         MemoryAuthDAO authDao = new MemoryAuthDAO();
@@ -25,7 +25,7 @@ public class InternalUnitTests {
         authDao.createAuth("small_user");
         authDao.createAuth("FC_Bayern279");
 
-        Assertions.assertDoesNotThrow(() -> clearService.clearDatabase(authDao, userDao, gameDao));
-        Assertions.assertTrue(authDao.);
+        Assertions.assertDoesNotThrow(() -> ClearService.clearDatabase(authDao, userDao, gameDao));
+        Assertions.assertTrue(authDao.empty() && gameDao.empty() && userDao.empty());
     }
 }

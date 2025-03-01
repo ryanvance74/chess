@@ -10,4 +10,5 @@ public interface AuthDAO {
     AuthData getAuth(String authToken);
     void deleteAuth(AuthData authData);
     void clearData();
+    boolean empty();
 }

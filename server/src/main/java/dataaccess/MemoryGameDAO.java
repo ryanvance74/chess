@@ -11,7 +11,7 @@ public class MemoryGameDAO implements GameDAO{
     Collection<GameData> gameDataHashSet = HashSet.newHashSet(1000);
 
     public GameData createGame(String gameName) {
-        int newGameId = UUID.randomUUID().hashCode();
+        int newGameId = UUID.randomUUID().hashCode() & Integer.MAX_VALUE;
         ChessGame newChessGame = new ChessGame();
         GameData newGameData = new GameData(newGameId, null, null, gameName, newChessGame);
         gameDataHashSet.add(newGameData);
@@ -28,5 +28,9 @@ public class MemoryGameDAO implements GameDAO{
 
     public void clearData() {
         gameDataHashSet.clear();
+    }
+
+    public boolean empty() {
+        return gameDataHashSet.isEmpty();
     }
 }

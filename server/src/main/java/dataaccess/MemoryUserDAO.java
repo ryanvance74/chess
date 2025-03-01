@@ -22,4 +22,8 @@ public class MemoryUserDAO implements UserDAO {
         // TODO
         return null;
     }
+
+    public boolean empty() {
+        return userDataHashSet.isEmpty();
+    }
 }

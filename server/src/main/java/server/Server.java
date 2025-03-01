@@ -1,5 +1,9 @@
 package server;
 
+import dataaccess.*;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
+import model.*;
 import spark.*;
 import service.*;
 
@@ -12,7 +16,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-
+        createRoutes();
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
@@ -21,10 +25,14 @@ public class Server {
     }
 
     private static void createRoutes() {
-        UserService userService = new UserService();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        UserDAO userDAO = new MemoryUserDAO();
+        GameDAO gameDAO = new MemoryGameDAO();
+
+//        UserService userService = new UserService();
         UserHandler userHandler = new UserHandler();
         GameHandler gameHandler = new GameHandler();
-        ClearHandler clearHandler = new ClearHandler();
+        ClearHandler clearHandler = new ClearHandler(authDAO, gameDAO, userDAO);
 
         // clearHandler
         Spark.delete("/db", clearHandler::delete);
