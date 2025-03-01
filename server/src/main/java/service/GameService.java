@@ -1,4 +1,5 @@
-package server;
+package service;
 
 public class GameService {
+
 }

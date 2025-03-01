@@ -1,6 +1,7 @@
 package server;
 
 import spark.*;
+import service.*;
 
 public class Server {
 
@@ -20,9 +21,11 @@ public class Server {
     }
 
     private static void createRoutes() {
-        ClearHandler clearHandler = new ClearHandler();
+        UserService userService = new UserService();
         UserHandler userHandler = new UserHandler();
         GameHandler gameHandler = new GameHandler();
+        ClearHandler clearHandler = new ClearHandler();
+
         // clearHandler
         Spark.delete("/db", clearHandler::delete);
         // userHandler
