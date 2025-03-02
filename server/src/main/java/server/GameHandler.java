@@ -1,13 +1,7 @@
 package server;
 
-import dataaccess.BadRequestException;
-import dataaccess.DuplicateUserException;
-import dataaccess.GameDAO;
-import dataaccess.ServerErrorException;
-import service.ErrorResult;
-import service.GameService;
-import service.RegisterRequest;
-import service.RegisterResult;
+import dataaccess.*;
+import service.*;
 import spark.Request;
 import spark.Response;
 import com.google.gson.Gson;
@@ -15,9 +9,10 @@ import com.google.gson.Gson;
 class GameHandler {
     GameService gameService;
     GameDAO gameDao;
+    AuthDAO authDao;
 
-    public GameHandler(GameDAO gameDao) {
-        this.gameService = new GameService();
+    public GameHandler(GameDAO gameDao, AuthDAO authDao) {
+        this.gameService = new GameService(gameDao, authDao);
         this.gameDao = gameDao;
     }
 
@@ -27,13 +22,9 @@ class GameHandler {
         try {
             ListGamesResult result = gameService.listGames(authToken);
             return gson.toJson(result);
-        } catch (DuplicateUserException e) {
+        } catch (UnauthorizedRequestException e) {
             ErrorResult result = new ErrorResult(e.getMessage());
-            res.status(403);
-            return gson.toJson(result);
-        } catch (BadRequestException e) {
-            ErrorResult result = new ErrorResult(e.getMessage());
-            res.status(400);
+            res.status(401);
             return gson.toJson(result);
         } catch (ServerErrorException e) {
             ErrorResult result = new ErrorResult(e.getMessage());

@@ -5,7 +5,6 @@ import dataaccess.ServerErrorException;
 import dataaccess.UnauthorizedRequestException;
 import model.AuthData;
 import model.GameData;
-
 import java.util.Collection;
 
 public class GameService {
@@ -16,13 +15,13 @@ public class GameService {
         this.authDao = authDao;
     }
 
-    public Collection<GameData> listGames(String authToken) throws UnauthorizedRequestException {
+    public ListGamesResult listGames(String authToken) throws UnauthorizedRequestException {
         AuthData authData = authDao.getAuth(authToken);
         if (authData == null) {
             throw new UnauthorizedRequestException("Error: unauthorized");
         } else {
             try {
-                return
+                return new ListGamesResult(gameDao.listGames());
             } catch (Exception e) {
                 throw new ServerErrorException(e.getMessage());
             }

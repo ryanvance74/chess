@@ -19,9 +19,9 @@ public class MemoryGameDAO implements GameDAO{
         return newGameData;
     }
    public Collection<GameData> listGames() {
-        // TODO
-        return null;
+        return gameDataHashSet.stream().toList();
     }
+
     public void updateGame(String gameID) {
         // TODO
     }
