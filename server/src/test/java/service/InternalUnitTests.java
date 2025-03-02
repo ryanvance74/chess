@@ -149,4 +149,19 @@ public class InternalUnitTests {
         Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.listGames("234"));
 
     }
+
+    @Test
+    public void goodCreateGame() {
+        AuthData authData = authDao.createAuth("user234");
+        Assertions.assertTrue(() -> {
+            try {
+                CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+
+
+        });
+    }
 }
