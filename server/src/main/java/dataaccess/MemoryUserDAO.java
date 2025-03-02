@@ -3,27 +3,34 @@ package dataaccess;
 import model.UserData;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class MemoryUserDAO implements UserDAO {
-    Collection<UserData> userDataHashSet = HashSet.newHashSet(1000);
+
+    HashMap<String, UserData> userDataHashMap = new HashMap<>();
 
     public void clearData() {
-        userDataHashSet.clear();
+        userDataHashMap.clear();
     }
 
-    public UserData createUser(String username, String password, String email) {
+    public UserData createUser(String username, String password, String email) throws DuplicateUserException {
         UserData newUserData = new UserData(username, password, email);
-        userDataHashSet.add(newUserData);
+        if (userDataHashMap.containsKey(username)) {
+            throw new DuplicateUserException("Error: already taken");
+        } else {
+            userDataHashMap.put(username, newUserData);
+
+        }
+
         return newUserData;
     }
 
     public UserData getUser(String username) {
-        // TODO
-        return null;
+        return userDataHashMap.get(username);
     }
 
     public boolean empty() {
-        return userDataHashSet.isEmpty();
+        return userDataHashMap.isEmpty();
     }
 }

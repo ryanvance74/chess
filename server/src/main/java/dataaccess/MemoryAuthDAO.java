@@ -3,32 +3,31 @@ package dataaccess;
 import model.AuthData;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
-    Collection<AuthData> authDataHashSet = HashSet.newHashSet(1000);
+    HashMap<String, AuthData> authDataHashMap = new HashMap<>();
 
     public AuthData createAuth(String username) {
         String newAuthToken = UUID.randomUUID().toString();
         AuthData newAuthData = new AuthData(newAuthToken,username);
-        authDataHashSet.add(newAuthData);
+        authDataHashMap.put(newAuthToken, newAuthData);
         return newAuthData;
     }
     public AuthData getAuth(String authToken) {
-        // TODO
-        return null;
+        return authDataHashMap.get(authToken);
     }
 
     public void deleteAuth(AuthData authData) {
-        authDataHashSet.remove(authData);
+        authDataHashMap.remove(authData.authToken());
     }
 
     public void clearData() {
-        authDataHashSet.clear();
+        authDataHashMap.clear();
     }
 
     public boolean empty() {
-        return authDataHashSet.isEmpty();
+        return authDataHashMap.isEmpty();
     }
 }

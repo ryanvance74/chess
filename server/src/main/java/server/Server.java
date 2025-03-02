@@ -25,14 +25,14 @@ public class Server {
     }
 
     private static void createRoutes() {
-        AuthDAO authDAO = new MemoryAuthDAO();
-        UserDAO userDAO = new MemoryUserDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
+        AuthDAO authDao = new MemoryAuthDAO();
+        UserDAO userDao = new MemoryUserDAO();
+        GameDAO gameDao = new MemoryGameDAO();
 
 //        UserService userService = new UserService();
-        UserHandler userHandler = new UserHandler();
+        UserHandler userHandler = new UserHandler(userDao, authDao);
         GameHandler gameHandler = new GameHandler();
-        ClearHandler clearHandler = new ClearHandler(authDAO, gameDAO, userDAO);
+        ClearHandler clearHandler = new ClearHandler(authDao, gameDao, userDao);
 
         // clearHandler
         Spark.delete("/db", clearHandler::delete);
