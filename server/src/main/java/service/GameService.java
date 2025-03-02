@@ -28,4 +28,19 @@ public class GameService {
 
         }
     }
+
+    public CreateGameResult createGame(CreateGameRequest request) throws UnauthorizedRequestException {
+        AuthData authData = authDao.getAuth(request.authToken());
+        if (authData == null) {
+            throw new UnauthorizedRequestException("Error: unauthorized");
+        } else {
+            try {
+                GameData game = gameDao.createGame(request.gameName());
+                return new CreateGameResult(game.gameID());
+            } catch (Exception e) {
+                throw new ServerErrorException(e.getMessage());
+            }
+
+        }
+    }
 }
