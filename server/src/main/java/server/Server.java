@@ -31,7 +31,7 @@ public class Server {
 
 //        UserService userService = new UserService();
         UserHandler userHandler = new UserHandler(userDao, authDao);
-        GameHandler gameHandler = new GameHandler();
+        GameHandler gameHandler = new GameHandler(gameDao, authDao);
         ClearHandler clearHandler = new ClearHandler(authDao, gameDao, userDao);
 
         // clearHandler
@@ -41,7 +41,7 @@ public class Server {
         Spark.post("/session", userHandler::loginSession);
         Spark.delete("/session", userHandler::deleteSession);
         //gameHandler
-        Spark.get("/game", gameHandler::getGame);
+        Spark.get("/game", gameHandler::listGames);
         Spark.post("/game", gameHandler::createGame);
         Spark.put("/game", gameHandler::joinGame);
     }

@@ -1,5 +1,6 @@
 package service;
 import dataaccess.*;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.*;
@@ -23,7 +24,7 @@ public class InternalUnitTests {
         gameDao = new MemoryGameDAO();
         authDao = new MemoryAuthDAO();
         userService = new UserService(userDao, authDao);
-        gameService = new GameService();
+        gameService = new GameService(gameDao, authDao);
 
     }
 
@@ -117,9 +118,35 @@ public class InternalUnitTests {
     public void goodListGames() {
         gameDao.createGame("game2435");
         gameDao.createGame("spiel21");
+        AuthData auth = authDao.createAuth("testuser74");
         Collection<GameData> array = new ArrayList<>();
 
-        Assertions.assertTrue(() -> !gameService.listGames().isEmpty());
+        Assertions.assertTrue(() -> {
+            try {
+                ListGamesResult result = gameService.listGames(auth.authToken());
+                boolean found1 = false;
+                boolean found2 = false;
+                for (GameData game : result.gameList()) {
+                    if (game.gameName().equals("game2435")) {
+                        found1 = true;
+                    }
+                    if (game.gameName().equals("spiel21")) {
+                        found2 = true;
+                    }
+                }
+                return found1 && found2;
+            } catch (Exception e) {
+                return false;
+            }
+
+
+        });
+
+    }
+
+    @Test
+    public void badListGames() {
+        Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.listGames("234"));
 
     }
 }
