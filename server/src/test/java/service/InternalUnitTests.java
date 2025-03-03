@@ -172,6 +172,18 @@ public class InternalUnitTests {
 
     @Test
     public void goodUpdateGame() {
+        AuthData authData = authDao.createAuth("user234");
+        Assertions.assertTrue(() -> {
+            try {
+                CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
+                gameService.updateGame(new UpdateGameRequest(authData.authToken(),"testuser74", "WHITE", result.gameID()));
+                return true;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return false;
+            }
 
+
+        });
     }
 }

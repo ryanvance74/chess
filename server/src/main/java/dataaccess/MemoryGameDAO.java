@@ -25,13 +25,13 @@ public class MemoryGameDAO implements GameDAO{
     public void updateGame(int gameId, String username, String playerColor) throws DuplicateUserException {
         GameData game = gameDataHashMap.get(gameId);
         if (playerColor.equals("WHITE")) {
-            if (!game.whiteUsername().isEmpty()) {
+            if (game.whiteUsername() != null) {
                 throw new DuplicateUserException("Error: already taken");
             } else {
                 gameDataHashMap.put(gameId, new GameData(gameId, username, game.blackUsername(), game.gameName(), game.game()));
             }
         } else {
-            if (!game.blackUsername().isEmpty()) {
+            if (game.blackUsername() != null) {
                 throw new DuplicateUserException("Error: already taken");
             } else {
                 gameDataHashMap.put(gameId, new GameData(gameId, game.whiteUsername(), username, game.gameName(), game.game()));
