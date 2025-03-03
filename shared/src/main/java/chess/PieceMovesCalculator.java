@@ -9,39 +9,15 @@ public interface PieceMovesCalculator {
 
 class QueenMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
-        Collection<int[]> directionArray = getDirectionArray();
+        Collection<int[]> directionArray = GetGeneralDirectionArray.getDirectionArray();
         return PieceMovesCalculatorUtils.generalMoves(board, position, directionArray, true);
-    }
-
-    private Collection<int[]> getDirectionArray() {
-        Collection<int[]> directionArray = new ArrayList<>();
-        for (int x = -1; x < 2; x++) {
-            for (int y = -1; y < 2; y++) {
-                if (!(x == 0 && y == 0)) {
-                    directionArray.add(new int[]{x,y});
-                }
-            }
-        }
-        return directionArray;
     }
 }
 
 class KingMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
-        Collection<int[]> directionArray = getDirectionArray();
+        Collection<int[]> directionArray = GetGeneralDirectionArray.getDirectionArray();
         return PieceMovesCalculatorUtils.generalMoves(board, position, directionArray, false);
-    }
-
-    private Collection<int[]> getDirectionArray() {
-        Collection<int[]> directionArray = new ArrayList<>();
-        for (int x = -1; x < 2; x++) {
-            for (int y = -1; y < 2; y++) {
-                if (!(x == 0 && y == 0)) {
-                    directionArray.add(new int[]{x,y});
-                }
-            }
-        }
-        return directionArray;
     }
 }
 
@@ -96,7 +72,7 @@ class RookMovesCalculator implements PieceMovesCalculator {
         Collection<int[]> rookDirectionArray = new ArrayList<>();
         for (int x = -1; x < 2; x++) {
             for (int y = -1; y < 2; y++) {
-                // only accept diagonals
+                // only accept straights
                 if (!(x == 0 && y == 0) && (x == 0 || y == 0) ) {
                     rookDirectionArray.add(new int[]{x,y});
                 }
@@ -112,5 +88,20 @@ class PawnMovesCalculator implements PieceMovesCalculator {
     }
 
 }
+
+class GetGeneralDirectionArray {
+    public static Collection<int[]> getDirectionArray() {
+        Collection<int[]> directionArray = new ArrayList<>();
+        for (int x = -1; x < 2; x++) {
+            for (int y = -1; y < 2; y++) {
+                if (!(x == 0 && y == 0)) {
+                    directionArray.add(new int[]{x,y});
+                }
+            }
+        }
+        return directionArray;
+    }
+}
+
 
 

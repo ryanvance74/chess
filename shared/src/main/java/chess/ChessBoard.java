@@ -85,62 +85,6 @@ public class ChessBoard {
             '7', ChessPiece.PieceType.ROOK
     );
 
-
-    private static void printTest(String str) {
-        System.out.println(str);
-    }
-
-    private static void printBoard(ChessPiece[][] board) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("observing new board...\n");
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                ChessPiece piece = board[row][col];
-                if (piece == null) {
-                    sb.append("L");
-                } else if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                    if (piece.teamColor == ChessGame.TeamColor.WHITE) {
-                        sb.append("P");
-                    } else {
-                        sb.append("p");
-                    }
-                } else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
-                    if (piece.teamColor == ChessGame.TeamColor.WHITE) {
-                        sb.append("R");
-                    } else {
-                        sb.append("r");
-                    }
-                } else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
-                    if (piece.teamColor == ChessGame.TeamColor.WHITE) {
-                        sb.append("N");
-                    } else {
-                        sb.append("n");
-                    }
-                } else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
-                    if (piece.teamColor == ChessGame.TeamColor.WHITE) {
-                        sb.append("B");
-                    } else {
-                        sb.append("b");
-                    }
-                } else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
-                    if (piece.teamColor == ChessGame.TeamColor.WHITE) {
-                        sb.append("Q");
-                    } else {
-                        sb.append("q");
-                    }
-                } else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-                    if (piece.teamColor == ChessGame.TeamColor.WHITE) {
-                        sb.append("K");
-                    } else {
-                        sb.append("k");
-                    }
-                }
-            }
-            sb.append("\n");
-        }
-        //printTest(sb.toString());
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
