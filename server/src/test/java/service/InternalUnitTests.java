@@ -190,6 +190,9 @@ public class InternalUnitTests {
 
     @Test
     public void badUpdateGame() {
-        Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.updateGame(new UpdateGameRequest("234", ChessGame.TeamColor.WHITE,234)));
+        Assertions.assertThrows(UnauthorizedRequestException.class, () -> {
+            gameService.updateGame(new UpdateGameRequest("234", ChessGame.TeamColor.WHITE,234));
+        }
+        );
     }
 }

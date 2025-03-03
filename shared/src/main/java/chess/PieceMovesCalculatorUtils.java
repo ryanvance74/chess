@@ -35,7 +35,8 @@ public final class PieceMovesCalculatorUtils {
         int orientation = myColor == ChessGame.TeamColor.WHITE ? 1 : -1;
 
         boolean checkAhead = addPawnMoves(board, moves, position, new int[]{orientation, 0}, false);
-        if (checkAhead && ((position.getRow() == 7 && myColor == ChessGame.TeamColor.BLACK) || (position.getRow() == 2 && myColor == ChessGame.TeamColor.WHITE))) {
+        boolean conditionOne = ((position.getRow() == 7 && myColor == ChessGame.TeamColor.BLACK) || (position.getRow() == 2 && myColor == ChessGame.TeamColor.WHITE));
+        if (checkAhead && conditionOne) {
             addPawnMoves(board, moves, position, new int[]{2*orientation, 0}, false);
         }
 
@@ -84,12 +85,6 @@ public final class PieceMovesCalculatorUtils {
         }
         return checkAhead;
     }
-
-    private static void printLoop(int i, int j, int[] direction) {
-        System.out.println("i,j = " + i + "," + j + " with direction: [" + direction[0] + "," + direction[1] + "]");
-    }
-
-
 
     private static boolean outOfBounds(int row, int col, int[] direction) {
         int newRow = row + direction[0];
