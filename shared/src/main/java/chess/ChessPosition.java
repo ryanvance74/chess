@@ -12,8 +12,8 @@ public class ChessPosition {
     int row;
     int col;
     public ChessPosition(int row, int col) {
-        row = row;
-        col = col;
+        this.row = row;
+        this.col = col;
     }
 
     /**
@@ -21,14 +21,14 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        return row;
+        return this.row;
     }
 
     /**
      * @return which column this position is in
      * 1 codes for the left row
      */
-    public int getColumn() { return col; }
+    public int getColumn() { return this.col; }
 
     @Override
     public boolean equals(Object o) {
@@ -36,11 +36,11 @@ public class ChessPosition {
             return false;
         }
         ChessPosition that = (ChessPosition) o;
-        return row == that.row && col == that.col;
+        return this.row == that.row && this.col == that.col;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(row, col);
+        return Objects.hash(this.row, this.col);
     }
 }
