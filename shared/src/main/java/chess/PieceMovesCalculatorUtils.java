@@ -35,8 +35,9 @@ public final class PieceMovesCalculatorUtils {
         int orientation = myColor == ChessGame.TeamColor.WHITE ? 1 : -1;
 
         boolean checkAhead = addPawnMoves(board, moves, position, new int[]{orientation, 0}, false);
-        boolean conditionOne = ((position.getRow() == 7 && myColor == ChessGame.TeamColor.BLACK) || (position.getRow() == 2 && myColor == ChessGame.TeamColor.WHITE));
-        if (checkAhead && conditionOne) {
+        boolean conditionOne = position.getRow() == 7 && myColor == ChessGame.TeamColor.BLACK;
+        boolean conditionTwo = position.getRow() == 2 && myColor == ChessGame.TeamColor.WHITE;
+        if (checkAhead && (conditionOne || conditionTwo)) {
             addPawnMoves(board, moves, position, new int[]{2*orientation, 0}, false);
         }
 
