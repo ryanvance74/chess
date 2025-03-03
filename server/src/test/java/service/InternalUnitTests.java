@@ -169,4 +169,9 @@ public class InternalUnitTests {
     public void badCreateGame() {
         Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.createGame(new CreateGameRequest("234", "test_game")));
     }
+
+    @Test
+    public void goodUpdateGame() {
+
+    }
 }

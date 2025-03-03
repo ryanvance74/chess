@@ -43,4 +43,18 @@ public class GameService {
 
         }
     }
+
+    public void updateGame(UpdateGameRequest request) throws UnauthorizedRequestException {
+        AuthData authData = authDao.getAuth(request.authToken());
+        if (authData == null) {
+            throw new UnauthorizedRequestException("Error: unauthorized");
+        } else {
+            try {
+                gameDao.updateGame(request.gameId(), request.username(), request.playerColor());
+            } catch (Exception e) {
+                throw new ServerErrorException(e.getMessage());
+            }
+
+        }
+    }
 }

@@ -35,7 +35,26 @@ class GameHandler {
     }
 
     public Object joinGame(Request req, Response res) {
-        return "empty";
+        String authToken = req.headers("authorization");
+        UpdateGameRequest partialRequest = gson.fromJson(req.body(), UpdateGameRequest.class);
+        UpdateGameRequest updateGameRequest = new UpdateGameRequest(authToken, partialRequest.playerColor(), partialRequest.username(), partialRequest.gameId());
+        if (updateGameRequest.gameId() == 0 || updateGameRequest.authToken().isEmpty() || updateGameRequest.playerColor().isEmpty() || updateGameRequest.username().isEmpty()) {
+            res.status(400);
+            return new ErrorResult("Error: bad request");
+        }
+
+        try {
+            gameService.updateGame(updateGameRequest);
+            return new ErrorResult("");
+        } catch (UnauthorizedRequestException e) {
+            ErrorResult result = new ErrorResult(e.getMessage());
+            res.status(401);
+            return gson.toJson(result);
+        } catch (ServerErrorException e) {
+            ErrorResult result = new ErrorResult(e.getMessage());
+            res.status(500);
+            return gson.toJson(result);
+        }
     }
 
     public Object createGame(Request req, Response res) {
