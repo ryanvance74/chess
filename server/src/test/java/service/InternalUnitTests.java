@@ -1,4 +1,5 @@
 package service;
+import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
@@ -57,7 +58,7 @@ public class InternalUnitTests {
     @Test
     public void badRegister() {
         Assertions.assertThrows(BadRequestException.class, () -> {
-            userService.register(new RegisterRequest("myUsername1234", "", "test@email.byu.edu"));
+            userService.register(new RegisterRequest("myUsername1234", null, "test@email.byu.edu"));
         });
         Assertions.assertThrows(DuplicateUserException.class, () -> {
             userService.register(new RegisterRequest("myUsername1234", "epic_password_529", "test@email.byu.edu"));
@@ -126,7 +127,7 @@ public class InternalUnitTests {
                 ListGamesResult result = gameService.listGames(auth.authToken());
                 boolean found1 = false;
                 boolean found2 = false;
-                for (GameData game : result.gameList()) {
+                for (ListGameResultSingle game : result.games()) {
                     if (game.gameName().equals("game2435")) {
                         found1 = true;
                     }
@@ -176,7 +177,7 @@ public class InternalUnitTests {
         Assertions.assertTrue(() -> {
             try {
                 CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
-                gameService.updateGame(new UpdateGameRequest(authData.authToken(),"WHITE/BLACK", result.gameID()));
+                gameService.updateGame(new UpdateGameRequest(authData.authToken(), ChessGame.TeamColor.WHITE, result.gameID()));
                 return true;
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -189,6 +190,6 @@ public class InternalUnitTests {
 
     @Test
     public void badUpdateGame() {
-        Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.updateGame(new UpdateGameRequest("234", "WHITE/BLACK",234)));
+        Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.updateGame(new UpdateGameRequest("234", ChessGame.TeamColor.WHITE,234)));
     }
 }

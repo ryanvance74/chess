@@ -15,7 +15,7 @@ public class UserService {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws DuplicateUserException, BadRequestException, ServerErrorException {
-        if (registerRequest.username().isEmpty() || registerRequest.password().isEmpty() || registerRequest.email().isEmpty()) {
+        if (registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null) {
             throw new BadRequestException("Error: bad request");
         }
         try {

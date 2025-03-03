@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.*;
+import org.eclipse.jetty.client.DuplexConnectionPool;
 import service.*;
 import spark.Request;
 import spark.Response;
@@ -38,10 +39,10 @@ class GameHandler {
         String authToken = req.headers("authorization");
         UpdateGameRequest partialRequest = gson.fromJson(req.body(), UpdateGameRequest.class);
         UpdateGameRequest updateGameRequest = new UpdateGameRequest(authToken, partialRequest.playerColor(), partialRequest.gameID());
-        if (updateGameRequest.gameID() == 0 || updateGameRequest.authToken().isEmpty() || updateGameRequest.playerColor().isEmpty()) {
+        if (updateGameRequest.gameID() == 0 || updateGameRequest.authToken() == null || updateGameRequest.playerColor() == null) {
             System.out.println(updateGameRequest.gameID());
             System.out.println(updateGameRequest.authToken());
-            System.out.println(updateGameRequest.playerColor().isEmpty());
+            System.out.println(updateGameRequest.playerColor() == null);
             res.status(400);
             return gson.toJson(new ErrorResult("Error: bad request"));
         }
@@ -52,6 +53,10 @@ class GameHandler {
         } catch (UnauthorizedRequestException e) {
             ErrorResult result = new ErrorResult(e.getMessage());
             res.status(401);
+            return gson.toJson(result);
+        } catch (DuplicateUserException e) {
+            ErrorResult result = new ErrorResult(e.getMessage());
+            res.status(403);
             return gson.toJson(result);
         } catch (ServerErrorException e) {
             ErrorResult result = new ErrorResult(e.getMessage());
