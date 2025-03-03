@@ -34,8 +34,8 @@ public final class PieceMovesCalculatorUtils {
         ChessGame.TeamColor myColor = board.getPiece(position).teamColor;
         int orientation = myColor == ChessGame.TeamColor.WHITE ? 1 : -1;
 
-        boolean check_ahead = addPawnMoves(board, moves, position, new int[]{orientation, 0}, false);
-        if (check_ahead && ((position.getRow() == 7 && myColor == ChessGame.TeamColor.BLACK) || (position.getRow() == 2 && myColor == ChessGame.TeamColor.WHITE))) {
+        boolean checkAhead = addPawnMoves(board, moves, position, new int[]{orientation, 0}, false);
+        if (checkAhead && ((position.getRow() == 7 && myColor == ChessGame.TeamColor.BLACK) || (position.getRow() == 2 && myColor == ChessGame.TeamColor.WHITE))) {
             addPawnMoves(board, moves, position, new int[]{2*orientation, 0}, false);
         }
 
@@ -46,7 +46,7 @@ public final class PieceMovesCalculatorUtils {
     }
 
     private static boolean addPawnMoves(ChessBoard board, Collection<ChessMove> moves, ChessPosition position, int[] direction, boolean canTake) {
-        boolean check_ahead = false;
+        boolean checkAhead = false;
         //printLoop(position.getRow(), position.getColumn(), direction);
         if (outOfBounds(position.getRow(), position.getColumn(), new int[]{direction[0], direction[1]})) {
             return false;
@@ -58,7 +58,7 @@ public final class PieceMovesCalculatorUtils {
 
 
         if (testPiece != null) {
-            if (!canTake) {return check_ahead;}
+            if (!canTake) {return checkAhead;}
             if (testPiece.teamColor != myColor) {
                 if (testPosition.getRow() == 1 || testPosition.getRow() == 8) {
                     moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.ROOK));
@@ -78,11 +78,11 @@ public final class PieceMovesCalculatorUtils {
                 moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.QUEEN));
             } else {
                 moves.add(new ChessMove(position, testPosition, null));
-                check_ahead = true;
+                checkAhead = true;
             }
 
         }
-        return check_ahead;
+        return checkAhead;
     }
 
     private static void printLoop(int i, int j, int[] direction) {
