@@ -50,8 +50,9 @@ public class GameService {
             throw new UnauthorizedRequestException("Error: unauthorized");
         } else {
             try {
-                gameDao.updateGame(request.gameId(), request.username(), request.playerColor());
+                gameDao.updateGame(request.gameID(), authData.username(), request.playerColor());
             } catch (Exception e) {
+                System.out.println("catching an error here");
                 throw new ServerErrorException(e.getMessage());
             }
 

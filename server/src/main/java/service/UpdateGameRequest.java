@@ -1,4 +1,4 @@
 package service;
 
-public record UpdateGameRequest(String authToken, String username, String playerColor, Integer gameId) {
+public record UpdateGameRequest(String authToken, String playerColor, int gameID) {
 }

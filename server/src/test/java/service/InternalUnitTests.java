@@ -176,7 +176,7 @@ public class InternalUnitTests {
         Assertions.assertTrue(() -> {
             try {
                 CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
-                gameService.updateGame(new UpdateGameRequest(authData.authToken(),"testuser74", "WHITE", result.gameID()));
+                gameService.updateGame(new UpdateGameRequest(authData.authToken(),"WHITE/BLACK", result.gameID()));
                 return true;
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -185,5 +185,10 @@ public class InternalUnitTests {
 
 
         });
+    }
+
+    @Test
+    public void badUpdateGame() {
+        Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.updateGame(new UpdateGameRequest("234", "WHITE/BLACK",234)));
     }
 }

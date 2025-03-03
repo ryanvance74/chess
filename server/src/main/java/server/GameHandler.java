@@ -37,15 +37,18 @@ class GameHandler {
     public Object joinGame(Request req, Response res) {
         String authToken = req.headers("authorization");
         UpdateGameRequest partialRequest = gson.fromJson(req.body(), UpdateGameRequest.class);
-        UpdateGameRequest updateGameRequest = new UpdateGameRequest(authToken, partialRequest.playerColor(), partialRequest.username(), partialRequest.gameId());
-        if (updateGameRequest.gameId() == 0 || updateGameRequest.authToken().isEmpty() || updateGameRequest.playerColor().isEmpty() || updateGameRequest.username().isEmpty()) {
+        UpdateGameRequest updateGameRequest = new UpdateGameRequest(authToken, partialRequest.playerColor(), partialRequest.gameID());
+        if (updateGameRequest.gameID() == 0 || updateGameRequest.authToken().isEmpty() || updateGameRequest.playerColor().isEmpty()) {
+            System.out.println(updateGameRequest.gameID());
+            System.out.println(updateGameRequest.authToken());
+            System.out.println(updateGameRequest.playerColor().isEmpty());
             res.status(400);
-            return new ErrorResult("Error: bad request");
+            return gson.toJson(new ErrorResult("Error: bad request"));
         }
 
         try {
             gameService.updateGame(updateGameRequest);
-            return new ErrorResult("");
+            return gson.toJson(new ErrorResult(""));
         } catch (UnauthorizedRequestException e) {
             ErrorResult result = new ErrorResult(e.getMessage());
             res.status(401);
