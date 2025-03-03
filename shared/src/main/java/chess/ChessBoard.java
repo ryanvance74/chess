@@ -69,12 +69,12 @@ public class ChessBoard {
             }
         } else {
             for (int col = 0; col < 8; col++) {
-                board[row][col] = new ChessPiece(color, boardPieceMap.get((char)(col+'0')));
+                board[row][col] = new ChessPiece(color, BOARD_PIECE_MAP.get((char)(col+'0')));
             }
         }
     }
 
-    private static final Map<Character, ChessPiece.PieceType> boardPieceMap = Map.of(
+    private static final Map<Character, ChessPiece.PieceType> BOARD_PIECE_MAP = Map.of(
             '0', ChessPiece.PieceType.ROOK,
             '1', ChessPiece.PieceType.KNIGHT,
             '2', ChessPiece.PieceType.BISHOP,
