@@ -62,10 +62,7 @@ public final class PieceMovesCalculatorUtils {
             if (!canTake) {return checkAhead;}
             if (testPiece.teamColor != myColor) {
                 if (testPosition.getRow() == 1 || testPosition.getRow() == 8) {
-                    moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.ROOK));
-                    moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.KNIGHT));
-                    moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.BISHOP));
-                    moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.QUEEN));
+                    addMovesHelper(moves, position, testPosition);
                 } else {
                     moves.add(new ChessMove(position, testPosition, null));
                 }
@@ -73,10 +70,7 @@ public final class PieceMovesCalculatorUtils {
         } else {
             if (canTake) {return false;}
             if (testPosition.getRow() == 1 || testPosition.getRow() == 8) {
-                moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.ROOK));
-                moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.KNIGHT));
-                moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.BISHOP));
-                moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.QUEEN));
+                addMovesHelper(moves, position, testPosition);
             } else {
                 moves.add(new ChessMove(position, testPosition, null));
                 checkAhead = true;
@@ -91,5 +85,12 @@ public final class PieceMovesCalculatorUtils {
         int newCol = col + direction[1];
         //printLoop(row-1, col-1, direction);
         return newRow < 1 || newRow > 8 || newCol < 1 || newCol > 8;
+    }
+
+    private static void addMovesHelper(Collection<ChessMove> moves, ChessPosition position, ChessPosition testPosition) {
+        moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.ROOK));
+        moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.KNIGHT));
+        moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.BISHOP));
+        moves.add(new ChessMove(position, testPosition, ChessPiece.PieceType.QUEEN));
     }
 }
