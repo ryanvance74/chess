@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public final class PieceMovesCalculatorUtils {
-    public static Collection<ChessMove> GeneralMoves(ChessBoard board, ChessPosition position, Collection<int[]> directionArray, boolean extendable) {
+    public static Collection<ChessMove> generalMoves(ChessBoard board, ChessPosition position, Collection<int[]> directionArray, boolean extendable) {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessGame.TeamColor myColor = board.getPiece(position).teamColor;
         for (int[] direction : directionArray) {
             int[] scaledDirection = {direction[0], direction[1]};
             while (true) {
-                if (OutOfBounds(position.getRow(), position.getColumn(), scaledDirection)) {break;}
+                if (outOfBounds(position.getRow(), position.getColumn(), scaledDirection)) {break;}
                 ChessPosition testPosition = new ChessPosition(position.getRow() + scaledDirection[0], position.getColumn() + scaledDirection[1]);
                 ChessPiece testPiece = board.getPiece(testPosition);
                 if (testPiece != null) {
@@ -29,26 +29,26 @@ public final class PieceMovesCalculatorUtils {
         return moves;
     }
 
-    public static Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition position) {
+    public static Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessGame.TeamColor myColor = board.getPiece(position).teamColor;
         int orientation = myColor == ChessGame.TeamColor.WHITE ? 1 : -1;
 
-        boolean check_ahead = AddPawnMoves(board, moves, position, new int[]{orientation, 0}, false);
+        boolean check_ahead = addPawnMoves(board, moves, position, new int[]{orientation, 0}, false);
         if (check_ahead && ((position.getRow() == 7 && myColor == ChessGame.TeamColor.BLACK) || (position.getRow() == 2 && myColor == ChessGame.TeamColor.WHITE))) {
-            AddPawnMoves(board, moves, position, new int[]{2*orientation, 0}, false);
+            addPawnMoves(board, moves, position, new int[]{2*orientation, 0}, false);
         }
 
-        AddPawnMoves(board, moves, position, new int[]{orientation, -1}, true);
-        AddPawnMoves(board, moves, position, new int[]{orientation, 1}, true);
+        addPawnMoves(board, moves, position, new int[]{orientation, -1}, true);
+        addPawnMoves(board, moves, position, new int[]{orientation, 1}, true);
         return moves;
 
     }
 
-    private static boolean AddPawnMoves(ChessBoard board, Collection<ChessMove> moves, ChessPosition position, int[] direction, boolean canTake) {
+    private static boolean addPawnMoves(ChessBoard board, Collection<ChessMove> moves, ChessPosition position, int[] direction, boolean canTake) {
         boolean check_ahead = false;
         //printLoop(position.getRow(), position.getColumn(), direction);
-        if (OutOfBounds(position.getRow(), position.getColumn(), new int[]{direction[0], direction[1]})) {
+        if (outOfBounds(position.getRow(), position.getColumn(), new int[]{direction[0], direction[1]})) {
             return false;
         }
         ChessGame.TeamColor myColor = board.getPiece(position).teamColor;
@@ -91,7 +91,7 @@ public final class PieceMovesCalculatorUtils {
 
 
 
-    private static boolean OutOfBounds(int row, int col, int[] direction) {
+    private static boolean outOfBounds(int row, int col, int[] direction) {
         int newRow = row + direction[0];
         int newCol = col + direction[1];
         //printLoop(row-1, col-1, direction);

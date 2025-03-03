@@ -10,7 +10,7 @@ public interface PieceMovesCalculator {
 class QueenMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         Collection<int[]> directionArray = getDirectionArray();
-        return PieceMovesCalculatorUtils.GeneralMoves(board, position, directionArray, true);
+        return PieceMovesCalculatorUtils.generalMoves(board, position, directionArray, true);
     }
 
     private Collection<int[]> getDirectionArray() {
@@ -29,7 +29,7 @@ class QueenMovesCalculator implements PieceMovesCalculator {
 class KingMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         Collection<int[]> directionArray = getDirectionArray();
-        return PieceMovesCalculatorUtils.GeneralMoves(board, position, directionArray, false);
+        return PieceMovesCalculatorUtils.generalMoves(board, position, directionArray, false);
     }
 
     private Collection<int[]> getDirectionArray() {
@@ -48,7 +48,7 @@ class KingMovesCalculator implements PieceMovesCalculator {
 class BishopMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         Collection<int[]> directionArray = getDirectionArray();
-        return PieceMovesCalculatorUtils.GeneralMoves(board, position, directionArray, true);
+        return PieceMovesCalculatorUtils.generalMoves(board, position, directionArray, true);
     }
 
     private Collection<int[]> getDirectionArray() {
@@ -68,7 +68,7 @@ class BishopMovesCalculator implements PieceMovesCalculator {
 class KnightMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         Collection<int[]> directionArray = getDirectionArray();
-        return PieceMovesCalculatorUtils.GeneralMoves(board, position, directionArray, false);
+        return PieceMovesCalculatorUtils.generalMoves(board, position, directionArray, false);
     }
 
     private Collection<int[]> getDirectionArray() {
@@ -89,7 +89,7 @@ class KnightMovesCalculator implements PieceMovesCalculator {
 class RookMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         Collection<int[]> directionArray = getDirectionArray();
-        return PieceMovesCalculatorUtils.GeneralMoves(board, position, directionArray, true);
+        return PieceMovesCalculatorUtils.generalMoves(board, position, directionArray, true);
     }
 
     private Collection<int[]> getDirectionArray() {
@@ -108,7 +108,7 @@ class RookMovesCalculator implements PieceMovesCalculator {
 
 class PawnMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
-        return PieceMovesCalculatorUtils.PawnMoves(board, position);
+        return PieceMovesCalculatorUtils.pawnMoves(board, position);
     }
 
 }
