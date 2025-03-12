@@ -8,7 +8,7 @@ public class SQLUserDAO implements UserDAO{
         // TODO
         String[] createStatements = {
                 """
-            CREATE TABLE IF NOT EXISTS auth (
+            CREATE TABLE IF NOT EXISTS user (
               `username` varchar(255) NOT NULL,
               `password` varchar(255) NOT NULL,
               `email` varchar(255) NOT NULL,
@@ -17,6 +17,19 @@ public class SQLUserDAO implements UserDAO{
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
         };
+
+        String[] insertStatement = {
+                """
+            INSERT INTO user (username, password, game, email, json) VALUES(?,?,?,?,?)
+            """
+        };
+
+        String[] clearStatement = {
+                """
+            TRUNCATE TABLE user
+            """
+        };
+
         DatabaseDAOCommunicator.configureDatabase(createStatements);
     }
 

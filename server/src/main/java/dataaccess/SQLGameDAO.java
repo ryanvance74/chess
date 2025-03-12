@@ -10,7 +10,7 @@ public class SQLGameDAO implements GameDAO {
         // TODO
         String[] createStatements = {
                 """
-            CREATE TABLE IF NOT EXISTS auth (
+            CREATE TABLE IF NOT EXISTS game (
               `gameID` int NOT NULL AUTO_INCREMENT,
               `white_username` varchar(255) NOT NULL,
               `black_username` varchar(255) NOT NULL,
@@ -20,11 +20,23 @@ public class SQLGameDAO implements GameDAO {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
         };
+        String[] insertStatement = {
+                """
+            INSERT INTO game (white_username, black_username, game, json) VALUES(?,?,?,?)
+            """
+        };
+
+        String[] clearStatement = {
+                """
+            TRUNCATE TABLE game
+            """
+        };
+
         DatabaseDAOCommunicator.configureDatabase(createStatements);
     }
 
     GameData createGame(String gameName) {
-        DatabaseDAOCommunicator.configureDatabase(createStatements);
+
     }
     Collection<GameData> listGames() {
 

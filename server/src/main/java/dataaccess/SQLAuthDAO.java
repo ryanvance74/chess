@@ -18,10 +18,22 @@ public class SQLAuthDAO implements AuthDAO {
                 """
             CREATE TABLE IF NOT EXISTS auth (
               `token` int NOT NULL,
-              `user` varchar(255) NOT NULL,
+              `username` varchar(255) NOT NULL,
               `json` TEXT NOT NULL,
               PRIMARY KEY (`token`),
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
+
+        String[] insertStatement = {
+                """
+            INSERT INTO auth (token, username, json) VALUES(?,?,?)
+            """
+        };
+
+        String[] clearStatement = {
+                """
+            TRUNCATE TABLE auth
             """
         };
         DatabaseDAOCommunicator.configureDatabase(createStatements);
