@@ -13,7 +13,18 @@ import model.AuthData;
 public class SQLAuthDAO implements AuthDAO {
 
     public SQLAuthDAO() throws DataAccessException {
-        configureDatabase();
+        // TODO
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS auth (
+              `token` int NOT NULL,
+              `user` varchar(255) NOT NULL,
+              `json` TEXT NOT NULL,
+              PRIMARY KEY (`token`),
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
+        DatabaseDAOCommunicator.configureDatabase(createStatements);
     }
 
     AuthData createAuth(String username) {
@@ -33,27 +44,6 @@ public class SQLAuthDAO implements AuthDAO {
     };
 
 
-
-
-
-
-
-    // TODO
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS auth (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
-              `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(type),
-              INDEX(name)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
-
-
-    }
+}
 
 }

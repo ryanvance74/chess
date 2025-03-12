@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static java.sql.Types.NULL;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class DatabaseDAOCommunicator {
@@ -28,6 +29,7 @@ public class DatabaseDAOCommunicator {
          return gson.fromJson(rs.getString("json"), ChessGame.class);
     }
 
+
     public static String serializeGame(ChessGame game) {
          Gson gson = new Gson();
          return gson.toJson(game);
@@ -38,11 +40,15 @@ public class DatabaseDAOCommunicator {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
-                    // TODO
-//                    if (param instanceof String p) ps.setString(i + 1, p);
-//                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-//                    else if (param instanceof PetType p) ps.setString(i + 1, p.toString());
-//                    else if (param == null) ps.setNull(i + 1, NULL);
+                    // TODO maybe done?
+                    switch (param) {
+                        case String p -> ps.setString(i + 1, p);
+                        case Integer p -> ps.setInt(i + 1, p);
+                        case ChessGame p -> ps.setString(i + 1, serializeGame(p));
+                        case null -> ps.setNull(i + 1, NULL);
+                        default -> {
+                        }
+                    }
                 }
                 ps.executeUpdate();
 
