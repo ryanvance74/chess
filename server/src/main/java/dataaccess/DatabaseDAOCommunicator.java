@@ -2,6 +2,8 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -9,6 +11,11 @@ import static java.sql.Types.NULL;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class DatabaseDAOCommunicator {
+
+    public final static String emptyQueryStub =
+            """
+        SELECT COUNT(*) FROM
+        """;
 
      public static void configureDatabase(String[] createStatements) throws DataAccessException {
          DatabaseManager.createDatabase();
@@ -38,18 +45,7 @@ public class DatabaseDAOCommunicator {
     public static int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    // TODO maybe done?
-                    switch (param) {
-                        case String p -> ps.setString(i + 1, p);
-                        case Integer p -> ps.setInt(i + 1, p);
-                        case ChessGame p -> ps.setString(i + 1, serializeGame(p));
-                        case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
-                    }
-                }
+                prepareStatementHelper(ps, params);
                 ps.executeUpdate();
 
                 var rs = ps.getGeneratedKeys();
@@ -62,4 +58,46 @@ public class DatabaseDAOCommunicator {
         } catch (SQLException e) {
             throw new DataAccessException(String.format("[500] unable to update database: %s, %s", statement, e.getMessage()));
         }
+
+    }
+
+    public static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                prepareStatementHelper(ps, params);
+                ps.executeUpdate();
+
+                return ps.executeQuery();
+
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("[500] unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
+
+    public static boolean checkEmptyTable(String table) throws DataAccessException {
+        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(emptyQueryStub + table)) {
+            return rs.getInt(1) == 0;
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    private static void prepareStatementHelper(PreparedStatement ps, Object... params) throws SQLException {
+        for (var i = 0; i < params.length; i++) {
+            var param = params[i];
+            // TODO maybe done?
+            switch (param) {
+                case String p -> ps.setString(i + 1, p);
+                case Integer p -> ps.setInt(i + 1, p);
+                case ChessGame p -> ps.setString(i + 1, serializeGame(p));
+                case null -> ps.setNull(i + 1, NULL);
+                default -> {
+                }
+            }
+        }
+    }
+
+
+
 }

@@ -7,17 +7,26 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import java.sql.*;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import model.AuthData;
 
+import javax.xml.crypto.Data;
+
 public class SQLAuthDAO implements AuthDAO {
+    String insertStatement;
+    String clearStatement;
+    String authQuery;
+    String deleteStatement;
+    String emptyQuery;
+
 
     public SQLAuthDAO() throws DataAccessException {
         // TODO
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS auth (
-              `token` int NOT NULL,
+              `auth_token` int NOT NULL,
               `username` varchar(255) NOT NULL,
               `json` TEXT NOT NULL,
               PRIMARY KEY (`token`),
@@ -25,37 +34,61 @@ public class SQLAuthDAO implements AuthDAO {
             """
         };
 
-        String[] insertStatement = {
+        String insertStatement =
                 """
-            INSERT INTO auth (token, username, json) VALUES(?,?,?)
-            """
-        };
+            INSERT INTO auth (auth_token, username, json) VALUES(?,?,?)
+            """;
 
-        String[] clearStatement = {
+        String clearStatement =
                 """
             TRUNCATE TABLE auth
-            """
-        };
+            """;
         DatabaseDAOCommunicator.configureDatabase(createStatements);
+
+        String authQuery =
+                """
+            SELECT json FROM auth WHERE auth_token=?
+            """;
+
+        String deleteStatement =
+                """
+            DELETE FROM auth WHERE (auth_token=?) VALUES(?)
+            """;
+
+
     }
 
-    AuthData createAuth(String username) {
+    public AuthData createAuth(String username) throws DataAccessException {
+        String newAuthToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(newAuthToken,username);
+
+        DatabaseDAOCommunicator.executeUpdate(this.insertStatement, authData.authToken(), authData.username(), new Gson().toJson(authData, AuthData.class));
+        return authData;
+    };
+
+    public AuthData getAuth(String authToken) throws DataAccessException {
+
+        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(authQuery, authToken)) {
+            return new Gson().fromJson(rs.getString("json"), AuthData.class);
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
 
     };
-    AuthData getAuth(String authToken) {
 
+    public void deleteAuth(AuthData authData) throws DataAccessException {
+        DatabaseDAOCommunicator.executeUpdate(this.deleteStatement, authData.authToken());
     };
-    void deleteAuth(AuthData authData) {
 
+    public void clearData() throws DataAccessException {
+        DatabaseDAOCommunicator.executeUpdate(this.clearStatement);
     };
-    void clearData() {
 
-    };
-    boolean empty() {
-
+    public boolean empty() throws DataAccessException {
+        return DatabaseDAOCommunicator.checkEmptyTable("auth");
     };
 
 
 }
 
-}
+
