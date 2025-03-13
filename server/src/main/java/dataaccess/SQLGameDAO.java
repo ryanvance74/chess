@@ -27,8 +27,8 @@ public class SQLGameDAO implements GameDAO {
                 """
             CREATE TABLE IF NOT EXISTS game (
               `game_id` int NOT NULL AUTO_INCREMENT,
-              `white_username` varchar(255) DEFAULT 'null',
-              `black_username` varchar(255) DEFAULT 'null',
+              `white_username` varchar(255),
+              `black_username` varchar(255),
               `game_name` TEXT NOT NULL,
               `chess_game` TEXT NOT NULL,
               PRIMARY KEY (`game_id`)
@@ -67,8 +67,8 @@ public class SQLGameDAO implements GameDAO {
     public GameData createGame(String gameName) throws DataAccessException {
 
         ChessGame newGame = new ChessGame();
-        int gameId = DatabaseDAOCommunicator.executeUpdate(this.insertStatement, "","", gameName, newGame);
-        return new GameData(gameId, "","", gameName, newGame);
+        int gameId = DatabaseDAOCommunicator.executeUpdate(this.insertStatement, null,null, gameName, newGame);
+        return new GameData(gameId, null,null, gameName, newGame);
 
     }
 
@@ -94,14 +94,20 @@ public class SQLGameDAO implements GameDAO {
         }
 
         if (playerColor.equals("WHITE")) {
-            if (!gameData.whiteUsername().equals("null")) {
+            if (gameData.whiteUsername() != null) {
+                System.out.println(playerColor);
+                System.out.println(username);
+                System.out.println(gameData.whiteUsername());
+                System.out.println(gameData.blackUsername());
+                System.out.println(gameData.gameID());
+                System.out.println(gameData.gameName());
                 throw new DuplicateUserException("Error: already taken");
             } else {
                 String updateStatement = "UPDATE game SET white_username=? WHERE game_id=?";
                 DatabaseDAOCommunicator.executeUpdate(updateStatement, username, gameData.gameID());
             }
         } else {
-            if (!gameData.blackUsername().equals("null")) {
+            if (gameData.blackUsername() != null) {
                 throw new DuplicateUserException("Error: already taken");
             } else {
                 String updateStatement = "UPDATE game SET black_username=? WHERE game_id=?";
