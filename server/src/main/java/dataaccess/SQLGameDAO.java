@@ -38,7 +38,7 @@ public class SQLGameDAO implements GameDAO {
 
         this.insertStatement =
                 """
-            INSERT INTO game (white_username, black_username, game_name, chess_game) VALUES(?,?,?,?,?)
+            INSERT INTO game (white_username, black_username, game_name, chess_game) VALUES(?,?,?,?)
             """;
 
         this.clearStatement =
@@ -48,12 +48,12 @@ public class SQLGameDAO implements GameDAO {
 
         this.gameQuery =
                 """
-            SELECT json FROM game WHERE (game_id=?) VALUES(?)
+            SELECT json FROM game WHERE game_id=?
             """;
 
         this.deleteStatement =
                 """
-            DELETE FROM game WHERE (game_id=?) VALUES(?)
+            DELETE FROM game WHERE game_id=?
             """;
 
         this.listQuery =
@@ -73,18 +73,17 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public Collection<GameData> listGames() throws DataAccessException {
-//        Collection<GameData> games = new ArrayList<>();
-//        Gson gson = new Gson();
-//        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(this.listQuery)) {
-//            while (rs.next()) {
-//
-//                games.add(processGame(rs, gson));
-//            }
-//            return games;
-//        } catch (SQLException e) {
-//            throw new DataAccessException(e.getMessage());
-//        }
-        return null;
+
+        ExecuteQueryHandler<Collection<GameData>> handler = rs -> {
+            Collection<GameData> games = new ArrayList<>();
+            Gson gson = new Gson();
+            while (rs.next()) {
+                games.add(processGame(rs, gson));
+            }
+            return games;
+        };
+        return DatabaseDAOCommunicator.executeQuery(this.listQuery, handler);
+
     }
 
     public void updateGame(int gameId, String username, String playerColor) throws DataAccessException, DuplicateUserException {
