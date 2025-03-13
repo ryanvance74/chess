@@ -19,7 +19,7 @@ class GameHandler {
         this.gson = new Gson();
     }
 
-    public Object listGames(Request req, Response res) {
+    public Object listGames(Request req, Response res) throws DataAccessException {
         String authToken = req.headers("authorization");
         try {
             ListGamesResult result = gameService.listGames(authToken);
@@ -58,7 +58,7 @@ class GameHandler {
             ErrorResult result = new ErrorResult(e.getMessage());
             res.status(403);
             return gson.toJson(result);
-        } catch (ServerErrorException e) {
+        } catch (Exception e) {
             ErrorResult result = new ErrorResult(e.getMessage());
             res.status(500);
             return gson.toJson(result);
@@ -81,7 +81,7 @@ class GameHandler {
             ErrorResult result = new ErrorResult(e.getMessage());
             res.status(401);
             return gson.toJson(result);
-        } catch (ServerErrorException e) {
+        } catch (Exception e) {
             ErrorResult result = new ErrorResult(e.getMessage());
             res.status(500);
             return gson.toJson(result);

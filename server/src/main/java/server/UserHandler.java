@@ -40,7 +40,7 @@ class UserHandler {
         }
     }
 
-    public Object loginSession(Request req, Response res) {
+    public Object loginSession(Request req, Response res)  {
         LoginRequest loginRequest = gson.fromJson(req.body(), LoginRequest.class);
         try {
             LoginResult result = userService.login(loginRequest);
@@ -49,7 +49,7 @@ class UserHandler {
             ErrorResult result = new ErrorResult(e.getMessage());
             res.status(401);
             return gson.toJson(result);
-        } catch (ServerErrorException e) {
+        } catch (Exception e) {
             ErrorResult result = new ErrorResult(e.getMessage());
             res.status(500);
             return gson.toJson(result);

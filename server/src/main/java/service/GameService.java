@@ -33,7 +33,7 @@ public class GameService {
         }
     }
 
-    public CreateGameResult createGame(CreateGameRequest request) throws UnauthorizedRequestException {
+    public CreateGameResult createGame(CreateGameRequest request) throws DataAccessException, UnauthorizedRequestException {
         AuthData authData = authDao.getAuth(request.authToken());
         if (authData == null) {
             throw new UnauthorizedRequestException("Error: unauthorized");
@@ -48,7 +48,7 @@ public class GameService {
         }
     }
 
-    public void updateGame(UpdateGameRequest request) throws UnauthorizedRequestException, DuplicateUserException {
+    public void updateGame(UpdateGameRequest request) throws DataAccessException, UnauthorizedRequestException, DuplicateUserException {
         AuthData authData = authDao.getAuth(request.authToken());
         if (authData == null) {
             throw new UnauthorizedRequestException("Error: unauthorized");

@@ -29,7 +29,7 @@ public class SQLAuthDAO implements AuthDAO {
               `auth_token` int NOT NULL,
               `username` varchar(255) NOT NULL,
               `json` TEXT NOT NULL,
-              PRIMARY KEY (`token`),
+              PRIMARY KEY (`auth_token`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
         };

@@ -31,7 +31,7 @@ public class SQLGameDAO implements GameDAO {
               `black_username` varchar(255),
               `game_name` TEXT NOT NULL,
               `chess_game` TEXT NOT NULL,
-              PRIMARY KEY (`token`),
+              PRIMARY KEY (`game_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
         };

@@ -18,42 +18,37 @@ public class SQLUserDAO implements UserDAO{
         // TODO
         String[] createStatements = {
                 """
+                DROP TABLE user
+            """,
+                """
             CREATE TABLE IF NOT EXISTS user (
               `username` varchar(255) NOT NULL,
               `password` varchar(255) NOT NULL,
               `email` varchar(255) NOT NULL,
-              `json` TEXT NOT NULL,
-              PRIMARY KEY (`username`),
+              PRIMARY KEY (`username`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
         };
 
-        String[] insertStatement = {
+        this.insertStatement =
                 """
-            INSERT INTO user (username, password, email, json) VALUES(?,?,?,?)
-            """
-        };
+            INSERT INTO user (username, password, email) VALUES(?,?,?)
+            """;
 
-        String[] clearStatement = {
+        this.clearStatement =
                 """
             TRUNCATE TABLE user
-            """
-        };
+            """;
 
-        String userQuery =
+        this.userQuery =
                 """
             SELECT json FROM user WHERE (username=?) VALUES(?)
             """;
 
-        String deleteStatement =
+        this.deleteStatement =
                 """
             DELETE FROM user WHERE (username=?) VALUES(?)
             """;
-
-        String listQuery =
-                """
-           SELECT * FROM user
-           """;
 
         DatabaseDAOCommunicator.configureDatabase(createStatements);
     }
@@ -62,7 +57,8 @@ public class SQLUserDAO implements UserDAO{
         UserData userData = new UserData(username,password,email);
 
         String hashedPassword = hashPassword(password);
-        DatabaseDAOCommunicator.executeUpdate(insertStatement, username, hashedPassword, email, userData);
+        System.out.println("running query: " + this.insertStatement + username + hashedPassword + email);
+        int result = DatabaseDAOCommunicator.executeUpdate(this.insertStatement, username, hashedPassword, email);
         return userData;
     }
 

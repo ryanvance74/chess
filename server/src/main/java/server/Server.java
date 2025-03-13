@@ -52,7 +52,7 @@ public class Server {
             Spark.put("/game", gameHandler::joinGame);
 
         } catch (DataAccessException e) {
-            System.out.println("FATAL ERROR WHEN CREATING DAOs.");
+            System.out.println("FATAL ERROR WHEN CREATING DAOs: " + e.getMessage());
             System.exit(1);
         }
 

@@ -46,15 +46,24 @@ public class DatabaseDAOCommunicator {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 prepareStatementHelper(ps, params);
-                ps.executeUpdate();
+                int rows = ps.executeUpdate();
 
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
+                try (var rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
                 }
+//                var rs = ps.getGeneratedKeys();
+//                if (rs.next()) {
+//                    return rs.getInt(1);
+//                }
 
-                return 0;
+                return rows;
+                // tried overriding failure with this exception and it seemed to fix the createUser method. createGame is still broken.
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
             }
+
         } catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
                 throw new DuplicateUserException(e.getMessage());
@@ -63,14 +72,13 @@ public class DatabaseDAOCommunicator {
             }
 
         }
-
+        return 0;
     }
 
     public static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 prepareStatementHelper(ps, params);
-                ps.executeUpdate();
 
                 return ps.executeQuery();
 
