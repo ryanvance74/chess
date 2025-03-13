@@ -45,12 +45,12 @@ public class SQLAuthDAO implements AuthDAO {
 
         this.authQuery =
                 """
-            SELECT json FROM auth WHERE auth_token=?
+            SELECT username, auth_token FROM auth WHERE auth_token=?
             """;
 
         this.deleteStatement =
                 """
-            DELETE FROM auth WHERE (auth_token=?) VALUES(?)
+            DELETE FROM auth WHERE auth_token=?
             """;
 
         DatabaseDAOCommunicator.configureDatabase(createStatements);
