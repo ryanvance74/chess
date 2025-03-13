@@ -3,7 +3,7 @@ import dataaccess.*;
 import model.UserData;
 import model.AuthData;
 import server.Server;
-
+import org.mindrot.jbcrypt.BCrypt;
 import java.rmi.ServerError;
 
 public class UserService {
@@ -29,10 +29,10 @@ public class UserService {
         }
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws UnauthorizedRequestException, ServerErrorException {
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException, UnauthorizedRequestException, ServerErrorException {
         UserData user = userDao.getUser(loginRequest.username());
 
-        if (user == null || !user.password().equals(loginRequest.password())) {
+        if (user == null || !verifyUser(user.password(), loginRequest.password())) {
             throw new UnauthorizedRequestException("Error: unauthorized");
         } else {
             try {
@@ -45,7 +45,7 @@ public class UserService {
         }
     }
 
-    public void logout(LogoutRequest logoutRequest) throws UnauthorizedRequestException {
+    public void logout(LogoutRequest logoutRequest) throws DataAccessException, UnauthorizedRequestException {
 
         AuthData authData = authDao.getAuth(logoutRequest.authToken());
         if (authData == null) {
@@ -58,5 +58,10 @@ public class UserService {
             }
 
         }
+    }
+
+    boolean verifyUser(String hashedPassword, String providedClearTextPassword) {
+        // read the previously hashed password from the database
+        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
     }
 }

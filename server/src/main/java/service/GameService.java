@@ -14,7 +14,7 @@ public class GameService {
         this.authDao = authDao;
     }
 
-    public ListGamesResult listGames(String authToken) throws UnauthorizedRequestException {
+    public ListGamesResult listGames(String authToken) throws DataAccessException, UnauthorizedRequestException {
         AuthData authData = authDao.getAuth(authToken);
         if (authData == null) {
             throw new UnauthorizedRequestException("Error: unauthorized");

@@ -7,6 +7,8 @@ import model.*;
 import spark.*;
 import service.*;
 
+import javax.xml.crypto.Data;
+
 public class Server {
 
     public int run(int desiredPort) {
@@ -25,25 +27,36 @@ public class Server {
     }
 
     private static void createRoutes() {
-        AuthDAO authDao = new MemoryAuthDAO();
-        UserDAO userDao = new MemoryUserDAO();
-        GameDAO gameDao = new MemoryGameDAO();
+        AuthDAO authDao;
+        UserDAO userDao;
+        GameDAO gameDao;
 
-//        UserService userService = new UserService();
-        UserHandler userHandler = new UserHandler(userDao, authDao);
-        GameHandler gameHandler = new GameHandler(gameDao, authDao);
-        ClearHandler clearHandler = new ClearHandler(authDao, gameDao, userDao);
+        try {
+            authDao = new SQLAuthDAO();
+            userDao = new SQLUserDAO();
+            gameDao = new SQLGameDAO();
 
-        // clearHandler
-        Spark.delete("/db", clearHandler::delete);
-        // userHandler
-        Spark.post("/user", userHandler::registerUser);
-        Spark.post("/session", userHandler::loginSession);
-        Spark.delete("/session", userHandler::deleteSession);
-        //gameHandler
-        Spark.get("/game", gameHandler::listGames);
-        Spark.post("/game", gameHandler::createGame);
-        Spark.put("/game", gameHandler::joinGame);
+            UserHandler userHandler = new UserHandler(userDao, authDao);
+            GameHandler gameHandler = new GameHandler(gameDao, authDao);
+            ClearHandler clearHandler = new ClearHandler(authDao, gameDao, userDao);
+
+            // clearHandler
+            Spark.delete("/db", clearHandler::delete);
+            // userHandler
+            Spark.post("/user", userHandler::registerUser);
+            Spark.post("/session", userHandler::loginSession);
+            Spark.delete("/session", userHandler::deleteSession);
+            //gameHandler
+            Spark.get("/game", gameHandler::listGames);
+            Spark.post("/game", gameHandler::createGame);
+            Spark.put("/game", gameHandler::joinGame);
+
+        } catch (DataAccessException e) {
+            System.out.println("FATAL ERROR WHEN CREATING DAOs.");
+            System.exit(1);
+        }
+
+
     }
 
     public void stop() {

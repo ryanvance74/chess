@@ -2,6 +2,8 @@ package dataaccess;
 
 import com.google.gson.Gson;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -59,7 +61,8 @@ public class SQLUserDAO implements UserDAO{
     public UserData createUser(String username, String password, String email) throws DataAccessException, DuplicateUserException {
         UserData userData = new UserData(username,password,email);
 
-        DatabaseDAOCommunicator.executeUpdate(insertStatement, username, password, email, userData);
+        String hashedPassword = hashPassword(password);
+        DatabaseDAOCommunicator.executeUpdate(insertStatement, username, hashedPassword, email, userData);
         return userData;
     }
 
@@ -75,5 +78,14 @@ public class SQLUserDAO implements UserDAO{
 
     public void clearData() throws DataAccessException{
         DatabaseDAOCommunicator.executeUpdate(clearStatement);
+    }
+
+    private String hashPassword(String clearTextPassword) {
+        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+
+    }
+
+    boolean verifyUser(String hashedPassword, String providedClearTextPassword) {
+        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
     }
 }
