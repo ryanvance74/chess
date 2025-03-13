@@ -1,10 +1,13 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 
+import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -57,6 +60,7 @@ public class SQLGameDAO implements GameDAO {
                 """
            SELECT * FROM game
            """;
+
         DatabaseDAOCommunicator.configureDatabase(createStatements);
     }
 
@@ -84,9 +88,59 @@ public class SQLGameDAO implements GameDAO {
 
     public void updateGame(int gameId, String username, String playerColor) throws DataAccessException, DuplicateUserException {
         Gson gson = new Gson();
-        GameData gameData;
 
-        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(this.listQuery)) {
+        GameData gameData = validateId(gameId);
+        // TODO: adapt this to SQL DAO. maybe need to abstract this between the two implementations of this DAO
+        if (playerColor.equals("WHITE")) {
+            if (gameData.whiteUsername() != null) {
+                throw new DuplicateUserException("Error: already taken");
+            } else {
+
+                String updateStatement = "UPDATE game SET white_username=" + username + "WHERE game_id=" + gameId;
+                int result = DatabaseDAOCommunicator.executeUpdate(updateStatement);
+                if (result != 0) {
+                    throw new DataAccessException("ERROR upon execution of update query");
+                }
+            }
+        } else {
+            if (gameData.blackUsername() != null) {
+                throw new DuplicateUserException("Error: already taken");
+            } else {
+                String updateStatement = "UPDATE game SET black_username=" + username + "WHERE game_id=" + gameId;
+                int result = DatabaseDAOCommunicator.executeUpdate(updateStatement);
+                if (result != 0) {
+                    throw new DataAccessException("ERROR upon execution of update query");
+                }
+            }
+        }
+    }
+
+    public void updateGame(int gameId, ChessMove move) throws DataAccessException {
+        Gson gson = new Gson();
+        GameData gameData = validateId(gameId);
+
+        ChessGame game = gameData.game();
+
+        try {
+            game.makeMove(move);
+        } catch (InvalidMoveException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
+        String serializedGame = DatabaseDAOCommunicator.serializeGame(game);
+        String updateStatement = "UPDATE game SET game=" + serializedGame + "WHERE game_id=" + gameId;
+        int result = DatabaseDAOCommunicator.executeUpdate(updateStatement);
+        if (result != 0) {
+            throw new DataAccessException("ERROR upon execution of update query");
+        }
+    }
+
+    private GameData validateId(int gameId) throws DataAccessException {
+        GameData gameData;
+        Gson gson = new Gson();
+        String updateQuery = "SELECT white_username, black_username FROM game WHERE gameId=" + String.valueOf(gameId);
+
+        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(updateQuery)) {
 
             if (!rs.next()) {
                 throw new DataAccessException("ERROR: invalid game ID.");
@@ -96,22 +150,8 @@ public class SQLGameDAO implements GameDAO {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
+        return gameData;
 
-        // TODO: adapt this to SQL DAO. maybe need to abstract this between the two implementations of this DAO
-        if (playerColor.equals("WHITE")) {
-            if (gameData.whiteUsername() != null) {
-                throw new DuplicateUserException("Error: already taken");
-            } else {
-
-                gameDataHashMap.put(gameId, new GameData(gameId, username, game.blackUsername(), game.gameName(), game.game()));
-            }
-        } else {
-            if (gameData.blackUsername() != null) {
-                throw new DuplicateUserException("Error: already taken");
-            } else {
-                gameDataHashMap.put(gameId, new GameData(gameId, game.whiteUsername(), username, game.gameName(), game.game()));
-            }
-        }
     }
 
     public void clearData() throws DataAccessException {

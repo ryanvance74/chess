@@ -39,7 +39,7 @@ public class DatabaseDAOCommunicator {
 
     public static String serializeGame(ChessGame game) {
          Gson gson = new Gson();
-         return gson.toJson(game);
+         return gson.toJson(game, ChessGame.class);
     }
 
     public static int executeUpdate(String statement, Object... params) throws DataAccessException {
