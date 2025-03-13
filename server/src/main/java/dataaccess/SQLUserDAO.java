@@ -1,7 +1,9 @@
 package dataaccess;
 
 import com.google.gson.Gson;
+import model.AuthData;
 import model.UserData;
+import org.eclipse.jetty.server.Authentication;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.ResultSet;
@@ -10,8 +12,8 @@ import java.sql.SQLException;
 public class SQLUserDAO implements UserDAO{
     String insertStatement;
     String clearStatement;
-    String userQuery;
-    String deleteStatement;
+    String getUserStatement;
+    String deleteStatementStub;
     String emptyQuery;
 
     public SQLUserDAO() throws DataAccessException {
@@ -40,14 +42,14 @@ public class SQLUserDAO implements UserDAO{
             TRUNCATE TABLE user
             """;
 
-        this.userQuery =
+        this.getUserStatement =
                 """
-            SELECT json FROM user WHERE (username=?) VALUES(?)
+            SELECT username, password, email FROM user WHERE username=?
             """;
 
-        this.deleteStatement =
+        this.deleteStatementStub =
                 """
-            DELETE FROM user WHERE (username=?) VALUES(?)
+            DELETE FROM user WHERE username=
             """;
 
         DatabaseDAOCommunicator.configureDatabase(createStatements);
@@ -64,11 +66,25 @@ public class SQLUserDAO implements UserDAO{
 
     public UserData getUser(String username) throws DataAccessException {
 
-        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(userQuery, username)) {
-            return new Gson().fromJson(rs.getString("json"),UserData.class);
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        ExecuteQueryHandler<UserData> handler = rs -> {
+            if (rs.next()) {
+                return new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email"));
+            }
+            return null;
+        };
+
+        return DatabaseDAOCommunicator.executeQuery(getUserStatement, handler, username);
+
+//        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(getUserStatement, handler, username)) {
+//            if (!rs.next()) {
+//                return null;
+//            }
+//            String password = rs.getString("password");
+//            String email    = rs.getString("email");
+//            return new UserData(username, password, email);
+//        } catch (SQLException e) {
+//            throw new DataAccessException(e.getMessage());
+//        }
 
     }
 

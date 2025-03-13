@@ -36,27 +36,27 @@ public class SQLGameDAO implements GameDAO {
             """
         };
 
-        String insertStatement =
+        this.insertStatement =
                 """
             INSERT INTO game (white_username, black_username, game_name, chess_game) VALUES(?,?,?,?,?)
             """;
 
-        String clearStatement =
+        this.clearStatement =
                 """
             TRUNCATE TABLE game
             """;
 
-        String gameQuery =
+        this.gameQuery =
                 """
             SELECT json FROM game WHERE (game_id=?) VALUES(?)
             """;
 
-        String deleteStatement =
+        this.deleteStatement =
                 """
             DELETE FROM game WHERE (game_id=?) VALUES(?)
             """;
 
-        String listQuery =
+        this.listQuery =
                 """
            SELECT * FROM game
            """;
@@ -73,17 +73,18 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public Collection<GameData> listGames() throws DataAccessException {
-        Collection<GameData> games = new ArrayList<>();
-        Gson gson = new Gson();
-        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(this.listQuery)) {
-            while (rs.next()) {
-
-                games.add(processGame(rs, gson));
-            }
-            return games;
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+//        Collection<GameData> games = new ArrayList<>();
+//        Gson gson = new Gson();
+//        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(this.listQuery)) {
+//            while (rs.next()) {
+//
+//                games.add(processGame(rs, gson));
+//            }
+//            return games;
+//        } catch (SQLException e) {
+//            throw new DataAccessException(e.getMessage());
+//        }
+        return null;
     }
 
     public void updateGame(int gameId, String username, String playerColor) throws DataAccessException, DuplicateUserException {
@@ -136,22 +137,22 @@ public class SQLGameDAO implements GameDAO {
     }
 
     private GameData validateId(int gameId) throws DataAccessException {
-        GameData gameData;
-        Gson gson = new Gson();
-        String updateQuery = "SELECT white_username, black_username FROM game WHERE gameId=" + String.valueOf(gameId);
-
-        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(updateQuery)) {
-
-            if (!rs.next()) {
-                throw new DataAccessException("ERROR: invalid game ID.");
-            } else {
-                gameData = processGame(rs, gson);
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-        return gameData;
-
+//        GameData gameData;
+//        Gson gson = new Gson();
+//        String updateQuery = "SELECT white_username, black_username FROM game WHERE gameId=" + String.valueOf(gameId);
+//
+//        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(updateQuery)) {
+//
+//            if (!rs.next()) {
+//                throw new DataAccessException("ERROR: invalid game ID.");
+//            } else {
+//                gameData = processGame(rs, gson);
+//            }
+//        } catch (SQLException e) {
+//            throw new DataAccessException(e.getMessage());
+//        }
+//        return gameData;
+    return null;
     }
 
     public void clearData() throws DataAccessException {

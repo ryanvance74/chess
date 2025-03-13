@@ -60,10 +60,7 @@ public class DatabaseDAOCommunicator {
 
                 return rows;
                 // tried overriding failure with this exception and it seemed to fix the createUser method. createGame is still broken.
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
             }
-
         } catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
                 throw new DuplicateUserException(e.getMessage());
@@ -72,29 +69,28 @@ public class DatabaseDAOCommunicator {
             }
 
         }
-        return 0;
     }
 
-    public static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
+    public static <T> T executeQuery(String statement, ExecuteQueryHandler<T> handler,  Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 prepareStatementHelper(ps, params);
-
-                return ps.executeQuery();
-
+                try (var rs = ps.executeQuery()) {
+                    return handler.handle(rs);
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("[500] unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
-    public static boolean checkEmptyTable(String table) throws DataAccessException {
-        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(emptyQueryStub + table)) {
-            return rs.getInt(1) == 0;
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-    }
+//    public static boolean checkEmptyTable(String table) throws DataAccessException {
+//       try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(emptyQueryStub + table)) {
+//           return rs.getInt(1) == 0;
+//       } catch (SQLException e) {
+//          throw new DataAccessException(e.getMessage());
+//       }
+//    }
 
     private static void prepareStatementHelper(PreparedStatement ps, Object... params) throws SQLException {
         for (var i = 0; i < params.length; i++) {
