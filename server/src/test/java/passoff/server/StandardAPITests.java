@@ -188,7 +188,6 @@ public class StandardAPITests {
     public void goodJoin() {
         //create game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
-
         //join as white
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID());
 
@@ -196,6 +195,7 @@ public class StandardAPITests {
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, existingAuth);
 
         //check
+        System.out.println(joinResult.getMessage());
         assertHttpOk(joinResult);
 
         TestListResult listResult = serverFacade.listGames(existingAuth);

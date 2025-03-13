@@ -23,7 +23,7 @@ public class UserService {
             AuthData authData = authDao.createAuth(result.username());
             return new RegisterResult(authData.username(), authData.authToken());
         } catch (DuplicateUserException e) {
-           throw new DuplicateUserException(e.getMessage());
+           throw new DuplicateUserException("Error: " + e.getMessage());
         } catch (Exception e) {
             throw new ServerErrorException(e.getMessage());
         }
