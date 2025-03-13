@@ -42,7 +42,7 @@ public class DatabaseDAOCommunicator {
          return gson.toJson(game, ChessGame.class);
     }
 
-    public static int executeUpdate(String statement, Object... params) throws DataAccessException {
+    public static int executeUpdate(String statement, Object... params) throws DataAccessException, DuplicateUserException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 prepareStatementHelper(ps, params);
@@ -56,7 +56,12 @@ public class DatabaseDAOCommunicator {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("[500] unable to update database: %s, %s", statement, e.getMessage()));
+            if (e.getErrorCode() == 1062) {
+                throw new DuplicateUserException(e.getMessage());
+            } else {
+                throw new DataAccessException(String.format("[500] unable to update database: %s, %s", statement, e.getMessage()));
+            }
+
         }
 
     }

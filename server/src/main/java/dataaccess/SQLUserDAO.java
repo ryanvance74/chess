@@ -1,8 +1,16 @@
 package dataaccess;
 
+import com.google.gson.Gson;
 import model.UserData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class SQLUserDAO implements UserDAO{
+    String insertStatement;
+    String clearStatement;
+    String userQuery;
+    String deleteStatement;
+    String emptyQuery;
 
     public SQLUserDAO() throws DataAccessException {
         // TODO
@@ -20,7 +28,7 @@ public class SQLUserDAO implements UserDAO{
 
         String[] insertStatement = {
                 """
-            INSERT INTO user (username, password, game, email, json) VALUES(?,?,?,?,?)
+            INSERT INTO user (username, password, email, json) VALUES(?,?,?,?)
             """
         };
 
@@ -30,18 +38,42 @@ public class SQLUserDAO implements UserDAO{
             """
         };
 
+        String userQuery =
+                """
+            SELECT json FROM user WHERE (username=?) VALUES(?)
+            """;
+
+        String deleteStatement =
+                """
+            DELETE FROM user WHERE (username=?) VALUES(?)
+            """;
+
+        String listQuery =
+                """
+           SELECT * FROM user
+           """;
+
         DatabaseDAOCommunicator.configureDatabase(createStatements);
     }
 
-    public UserData createUser(String username, String password, String email) throws DuplicateUserException {
+    public UserData createUser(String username, String password, String email) throws DataAccessException, DuplicateUserException {
+        UserData userData = new UserData(username,password,email);
+
+        DatabaseDAOCommunicator.executeUpdate(insertStatement, username, password, email, userData);
+        return userData;
+    }
+
+    public UserData getUser(String username) throws DataAccessException {
+
+        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(userQuery, username)) {
+            return new Gson().fromJson(rs.getString("json"),UserData.class);
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
 
     }
 
-    public UserData getUser(String username) {
-
-    }
-
-    public void clearData() {
-
+    public void clearData() throws DataAccessException{
+        DatabaseDAOCommunicator.executeUpdate(clearStatement);
     }
 }

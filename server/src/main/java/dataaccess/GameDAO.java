@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public interface GameDAO {
-    GameData createGame(String gameName);
-    Collection<GameData> listGames();
-    void updateGame(int gameId, String username, String playerColor) throws DuplicateUserException;
-    void clearData();
+    GameData createGame(String gameName) throws DataAccessException;
+    Collection<GameData> listGames() throws DataAccessException;
+    void updateGame(int gameId, String username, String playerColor) throws DataAccessException, DuplicateUserException;
+    void clearData() throws DataAccessException;
 
 }
