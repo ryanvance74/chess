@@ -87,60 +87,60 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void updateGame(int gameId, String username, String playerColor) throws DataAccessException, DuplicateUserException {
-        Gson gson = new Gson();
 
         GameData gameData = validateId(gameId);
-        // TODO: adapt this to SQL DAO. maybe need to abstract this between the two implementations of this DAO
+        if (gameData == null) {
+            throw new DataAccessException("ERROR: failed to retrieve game by given game ID. Does not exist.");
+        }
+
         if (playerColor.equals("WHITE")) {
-            if (gameData.whiteUsername() != null) {
+            if (!gameData.whiteUsername().isEmpty()) {
                 throw new DuplicateUserException("Error: already taken");
             } else {
-
-                String updateStatement = "UPDATE game SET white_username=" + username + "WHERE game_id=" + gameId;
-                int result = DatabaseDAOCommunicator.executeUpdate(updateStatement);
-                if (result != 0) {
-                    throw new DataAccessException("ERROR upon execution of update query");
-                }
+                String updateStatement = "UPDATE game SET white_username=? WHERE game_id=?";
+                DatabaseDAOCommunicator.executeUpdate(updateStatement, username, gameData.gameID());
             }
         } else {
-            if (gameData.blackUsername() != null) {
+            if (!gameData.blackUsername().isEmpty()) {
                 throw new DuplicateUserException("Error: already taken");
             } else {
-                String updateStatement = "UPDATE game SET black_username=" + username + "WHERE game_id=" + gameId;
-                int result = DatabaseDAOCommunicator.executeUpdate(updateStatement);
-                if (result != 0) {
-                    throw new DataAccessException("ERROR upon execution of update query");
-                }
+                String updateStatement = "UPDATE game SET black_username=? WHERE game_id=?";
+                DatabaseDAOCommunicator.executeUpdate(updateStatement, username, gameData.gameID());
             }
         }
     }
 
     public void updateGame(int gameId, ChessMove move) throws DataAccessException {
-        Gson gson = new Gson();
         GameData gameData = validateId(gameId);
+        if (gameData == null) {
+            throw new DataAccessException("ERROR: failed to retrieve game by given game ID. Does not exist.");
+        }
 
-        ChessGame game = gameData.game();
+        ChessGame chessGame = gameData.game();
 
         try {
-            game.makeMove(move);
+            chessGame.makeMove(move);
         } catch (InvalidMoveException e) {
             throw new DataAccessException(e.getMessage());
         }
 
-        String serializedGame = DatabaseDAOCommunicator.serializeGame(game);
-        String updateStatement = "UPDATE game SET game=" + serializedGame + "WHERE game_id=" + gameId;
-        int result = DatabaseDAOCommunicator.executeUpdate(updateStatement);
-        if (result != 0) {
-            throw new DataAccessException("ERROR upon execution of update query");
-        }
+        String serializedGame = DatabaseDAOCommunicator.serializeGame(chessGame);
+        String updateStatement = "UPDATE game SET game=? WHERE game_id=?";
+        DatabaseDAOCommunicator.executeUpdate(updateStatement, serializedGame, gameId);
     }
 
     private GameData validateId(int gameId) throws DataAccessException {
-//        GameData gameData;
-//        Gson gson = new Gson();
-//        String updateQuery = "SELECT white_username, black_username FROM game WHERE gameId=" + String.valueOf(gameId);
-//
-//        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(updateQuery)) {
+        GameData gameData;
+        String updateQuery = "SELECT game_id, white_username, black_username, game_name, chess_game FROM game WHERE game_id=?";
+
+        ExecuteQueryHandler<GameData> handler = rs -> {
+            if (rs.next()) {
+                return processGame(rs, new Gson());
+            }
+            return null;
+        };
+
+//        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(updateQuery) {
 //
 //            if (!rs.next()) {
 //                throw new DataAccessException("ERROR: invalid game ID.");
@@ -151,7 +151,7 @@ public class SQLGameDAO implements GameDAO {
 //            throw new DataAccessException(e.getMessage());
 //        }
 //        return gameData;
-    return null;
+        return DatabaseDAOCommunicator.executeQuery(updateQuery, handler, String.valueOf(gameId));
     }
 
     public void clearData() throws DataAccessException {
