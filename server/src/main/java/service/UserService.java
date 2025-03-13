@@ -32,7 +32,7 @@ public class UserService {
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException, UnauthorizedRequestException, ServerErrorException {
         UserData user = userDao.getUser(loginRequest.username());
 
-        if (user == null || !verifyUser(user.password(), loginRequest.password())) {
+        if (user == null || !userDao.verifyUser(loginRequest.password(), user.password())) {
             throw new UnauthorizedRequestException("Error: unauthorized");
         } else {
             try {
@@ -60,8 +60,8 @@ public class UserService {
         }
     }
 
-    boolean verifyUser(String hashedPassword, String providedClearTextPassword) {
-        // read the previously hashed password from the database
-        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
-    }
+//    boolean verifyUser(String hashedPassword, String providedClearTextPassword) {
+//        // read the previously hashed password from the database
+//        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
+//    }
 }

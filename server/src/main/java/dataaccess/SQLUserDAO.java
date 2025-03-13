@@ -91,10 +91,9 @@ public class SQLUserDAO implements UserDAO{
 
     private String hashPassword(String clearTextPassword) {
         return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
-
     }
 
-    boolean verifyUser(String hashedPassword, String providedClearTextPassword) {
-        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
+    public boolean verifyUser(String inputPassword, String hashedPassword) {
+        return BCrypt.checkpw(inputPassword, hashedPassword);
     }
 }

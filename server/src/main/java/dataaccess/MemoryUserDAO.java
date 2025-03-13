@@ -33,4 +33,8 @@ public class MemoryUserDAO implements UserDAO {
     public boolean empty() {
         return userDataHashMap.isEmpty();
     }
+
+    public boolean verifyUser(String inputPassword, String hashedPassword) {
+        return inputPassword.equals(hashedPassword);
+    }
 }
