@@ -43,7 +43,6 @@ public class SQLAuthDAO implements AuthDAO {
                 """
             TRUNCATE TABLE auth
             """;
-        DatabaseDAOCommunicator.configureDatabase(createStatements);
 
         String authQuery =
                 """
@@ -55,7 +54,7 @@ public class SQLAuthDAO implements AuthDAO {
             DELETE FROM auth WHERE (auth_token=?) VALUES(?)
             """;
 
-
+        DatabaseDAOCommunicator.configureDatabase(createStatements);
     }
 
     public AuthData createAuth(String username) throws DataAccessException {

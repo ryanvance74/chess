@@ -1,64 +1,131 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
+import model.AuthData;
 import model.GameData;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 public class SQLGameDAO implements GameDAO {
+    String insertStatement;
+    String clearStatement;
+    String gameQuery;
+    String deleteStatement;
+    String listQuery;
 
     public SQLGameDAO() throws DataAccessException {
         // TODO
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS game (
-              `gameID` int NOT NULL AUTO_INCREMENT,
-              `white_username` varchar(255) NOT NULL,
-              `black_username` varchar(255) NOT NULL,
-              `game` TEXT NOT NULL
-              `json` TEXT NOT NULL,
+              `game_id` int NOT NULL AUTO_INCREMENT,
+              `white_username` varchar(255),
+              `black_username` varchar(255),
+              `game_name` TEXT NOT NULL,
+              `chess_game` TEXT NOT NULL,
               PRIMARY KEY (`token`),
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
         };
-        String[] insertStatement = {
-                """
-            INSERT INTO game (white_username, black_username, game, json) VALUES(?,?,?,?)
-            """
-        };
 
-        String[] clearStatement = {
+        String insertStatement =
+                """
+            INSERT INTO game (white_username, black_username, game_name, chess_game) VALUES(?,?,?,?,?)
+            """;
+
+        String clearStatement =
                 """
             TRUNCATE TABLE game
-            """
-        };
+            """;
 
+        String gameQuery =
+                """
+            SELECT json FROM game WHERE (game_id=?) VALUES(?)
+            """;
+
+        String deleteStatement =
+                """
+            DELETE FROM game WHERE (game_id=?) VALUES(?)
+            """;
+
+        String listQuery =
+                """
+           SELECT * FROM game
+           """;
         DatabaseDAOCommunicator.configureDatabase(createStatements);
     }
 
-    GameData createGame(String gameName) {
+    public GameData createGame(String gameName) throws DataAccessException {
 
-    }
-    Collection<GameData> listGames() {
-
-    }
-    void updateGame(int gameId, String username, String playerColor) throws DuplicateUserException {
-
-    }
-    void clearData() {
+        ChessGame newGame = new ChessGame();
+        int gameId = DatabaseDAOCommunicator.executeUpdate(this.insertStatement, "","", gameName, newGame);
+        return new GameData(gameId, "","", gameName, newGame);
 
     }
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS auth (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
-              `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(type),
-              INDEX(name)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
+    public Collection<GameData> listGames() throws DataAccessException {
+        Collection<GameData> games = new ArrayList<>();
+        Gson gson = new Gson();
+        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(this.listQuery)) {
+            while (rs.next()) {
+
+                games.add(processGame(rs, gson));
+            }
+            return games;
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    public void updateGame(int gameId, String username, String playerColor) throws DataAccessException, DuplicateUserException {
+        Gson gson = new Gson();
+        GameData gameData;
+
+        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(this.listQuery)) {
+
+            if (!rs.next()) {
+                throw new DataAccessException("ERROR: invalid game ID.");
+            } else {
+                gameData = processGame(rs, gson);
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
+        // TODO: adapt this to SQL DAO. maybe need to abstract this between the two implementations of this DAO
+        if (playerColor.equals("WHITE")) {
+            if (gameData.whiteUsername() != null) {
+                throw new DuplicateUserException("Error: already taken");
+            } else {
+
+                gameDataHashMap.put(gameId, new GameData(gameId, username, game.blackUsername(), game.gameName(), game.game()));
+            }
+        } else {
+            if (gameData.blackUsername() != null) {
+                throw new DuplicateUserException("Error: already taken");
+            } else {
+                gameDataHashMap.put(gameId, new GameData(gameId, game.whiteUsername(), username, game.gameName(), game.game()));
+            }
+        }
+    }
+
+    public void clearData() throws DataAccessException {
+        DatabaseDAOCommunicator.executeUpdate(this.clearStatement);
+    }
+
+    private GameData processGame(ResultSet rs, Gson gson) throws SQLException {
+        int gameId = rs.getInt("game_id");
+        String whiteUsername = rs.getString("white_username");
+        String blackUsername = rs.getString("black_username");
+        String gameName      = rs.getString("game_name");
+        ChessGame chessGame  = gson.fromJson(rs.getString("chess_game"),ChessGame.class);
+
+        return new GameData(gameId, whiteUsername, blackUsername, gameName, chessGame);
+    }
+
 }
