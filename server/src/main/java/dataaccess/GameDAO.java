@@ -1,6 +1,6 @@
 package dataaccess;
-import dataaccess.Exceptions.DataAccessException;
-import dataaccess.Exceptions.DuplicateUserException;
+import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.DuplicateUserException;
 import model.GameData;
 import java.util.Collection;
 

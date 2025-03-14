@@ -1,4 +1,4 @@
-package dataaccess.Exceptions;
+package dataaccess.exceptions;
 
 public class DuplicateUserException extends DataAccessException {
     public DuplicateUserException(String message) {

@@ -1,7 +1,7 @@
 package dataaccess;
 
-import dataaccess.Exceptions.DataAccessException;
-import dataaccess.Exceptions.DuplicateUserException;
+import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.DuplicateUserException;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 

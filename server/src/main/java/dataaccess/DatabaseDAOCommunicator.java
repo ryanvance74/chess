@@ -2,8 +2,8 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataaccess.Exceptions.DataAccessException;
-import dataaccess.Exceptions.DuplicateUserException;
+import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.DuplicateUserException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

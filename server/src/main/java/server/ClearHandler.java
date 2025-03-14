@@ -1,6 +1,6 @@
 package server;
 import dataaccess.AuthDAO;
-import dataaccess.Exceptions.DataAccessException;
+import dataaccess.exceptions.DataAccessException;
 import service.ErrorResult;
 import spark.Request;
 import spark.Response;

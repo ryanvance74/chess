@@ -1,8 +1,8 @@
 package dataaccess;
 
 import chess.ChessGame;
-import dataaccess.Exceptions.DataAccessException;
-import dataaccess.Exceptions.DuplicateUserException;
+import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.DuplicateUserException;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;

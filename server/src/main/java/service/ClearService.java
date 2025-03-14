@@ -1,8 +1,8 @@
 package service;
 
 import dataaccess.*;
-import dataaccess.Exceptions.ClearDataException;
-import dataaccess.Exceptions.DataAccessException;
+import dataaccess.exceptions.ClearDataException;
+import dataaccess.exceptions.DataAccessException;
 
 public class ClearService {
     public static void clearDatabase(AuthDAO authDao, UserDAO userDao, GameDAO gameDao) throws DataAccessException, ClearDataException {

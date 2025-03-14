@@ -1,6 +1,6 @@
 package dataaccess;
 
-import dataaccess.Exceptions.DuplicateUserException;
+import dataaccess.exceptions.DuplicateUserException;
 import model.UserData;
 
 import java.util.HashMap;

@@ -1,9 +1,9 @@
 package service;
 import chess.ChessGame;
 import dataaccess.*;
-import dataaccess.Exceptions.BadRequestException;
-import dataaccess.Exceptions.DuplicateUserException;
-import dataaccess.Exceptions.UnauthorizedRequestException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.DuplicateUserException;
+import dataaccess.exceptions.UnauthorizedRequestException;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;

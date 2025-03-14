@@ -2,8 +2,8 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataaccess.Exceptions.DataAccessException;
-import dataaccess.Exceptions.DuplicateUserException;
+import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.DuplicateUserException;
 import model.GameData;
 
 import java.sql.ResultSet;
@@ -128,18 +128,6 @@ public class SQLGameDAO implements GameDAO {
             }
             return null;
         };
-
-//        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(updateQuery) {
-//
-//            if (!rs.next()) {
-//                throw new DataAccessException("ERROR: invalid game ID.");
-//            } else {
-//                gameData = processGame(rs, gson);
-//            }
-//        } catch (SQLException e) {
-//            throw new DataAccessException(e.getMessage());
-//        }
-//        return gameData;
         return DatabaseDAOCommunicator.executeQuery(updateQuery, handler, String.valueOf(gameId));
     }
 

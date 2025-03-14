@@ -1,9 +1,9 @@
 package server;
 
-import dataaccess.Exceptions.BadRequestException;
-import dataaccess.Exceptions.DuplicateUserException;
-import dataaccess.Exceptions.ServerErrorException;
-import dataaccess.Exceptions.UnauthorizedRequestException;
+import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.DuplicateUserException;
+import dataaccess.exceptions.ServerErrorException;
+import dataaccess.exceptions.UnauthorizedRequestException;
 import service.*;
 import spark.Request;
 import spark.Response;
