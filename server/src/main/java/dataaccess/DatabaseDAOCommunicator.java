@@ -88,7 +88,6 @@ public class DatabaseDAOCommunicator {
     private static void prepareStatementHelper(PreparedStatement ps, Object... params) throws SQLException {
         for (var i = 0; i < params.length; i++) {
             var param = params[i];
-            // TODO maybe done?
             switch (param) {
                 case String p -> ps.setString(i + 1, p);
                 case Integer p -> ps.setInt(i + 1, p);

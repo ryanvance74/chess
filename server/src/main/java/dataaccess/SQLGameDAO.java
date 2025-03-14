@@ -20,7 +20,6 @@ public class SQLGameDAO implements GameDAO {
     String emptyQuery;
 
     public SQLGameDAO() throws DataAccessException {
-        // TODO
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS game (

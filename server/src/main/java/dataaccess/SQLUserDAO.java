@@ -13,7 +13,6 @@ public class SQLUserDAO implements UserDAO{
     String emptyQuery;
 
     public SQLUserDAO() throws DataAccessException {
-        // TODO
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS user (

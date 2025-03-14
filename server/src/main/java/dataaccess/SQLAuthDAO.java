@@ -14,7 +14,6 @@ public class SQLAuthDAO implements AuthDAO {
 
 
     public SQLAuthDAO() throws DataAccessException {
-        // TODO
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS auth (
