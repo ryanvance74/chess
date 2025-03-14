@@ -53,6 +53,11 @@ public class SQLAuthDAO implements AuthDAO {
             DELETE FROM auth WHERE auth_token=?
             """;
 
+        this.emptyQuery =
+            """
+        SELECT EXISTS(SELECT 1 FROM auth LIMIT 1)
+        """;
+
         DatabaseDAOCommunicator.configureDatabase(createStatements);
     }
 
@@ -94,8 +99,7 @@ public class SQLAuthDAO implements AuthDAO {
     };
 
     public boolean empty() throws DataAccessException {
-        return false;
-//        return DatabaseDAOCommunicator.checkEmptyTable("auth");
+        return DatabaseDAOCommunicator.checkEmptyTable(this.emptyQuery);
     };
 
 

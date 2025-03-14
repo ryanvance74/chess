@@ -14,7 +14,7 @@ public class DatabaseDAOCommunicator {
 
     public final static String emptyQueryStub =
             """
-        SELECT COUNT(*) FROM
+        SELECT EXISTS(SELECT 1 FROM %s LIMIT 1)
         """;
 
      public static void configureDatabase(String[] createStatements) throws DataAccessException {
@@ -84,13 +84,22 @@ public class DatabaseDAOCommunicator {
         }
     }
 
-//    public static boolean checkEmptyTable(String table) throws DataAccessException {
-//       try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(emptyQueryStub + table)) {
+    public static boolean checkEmptyTable(String tableQuery) throws DataAccessException {
+         DatabaseDAOCommunicator.executeQuery(tableQuery, rs -> rs.getInt(1));
+
+         ExecuteQueryHandler<Boolean> handler = rs -> {
+             if (rs.next()) {
+                 return rs.getInt(1) == 0;
+             }
+             return true;
+         };
+         return executeQuery(tableQuery, handler);
+//       try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(tableQuery, rs -> {rs.getInt(1);})) {
 //           return rs.getInt(1) == 0;
 //       } catch (SQLException e) {
 //          throw new DataAccessException(e.getMessage());
 //       }
-//    }
+    }
 
     private static void prepareStatementHelper(PreparedStatement ps, Object... params) throws SQLException {
         for (var i = 0; i < params.length; i++) {

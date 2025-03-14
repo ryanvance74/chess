@@ -20,6 +20,7 @@ public class SQLGameDAO implements GameDAO {
     String gameQuery;
     String deleteStatement;
     String listQuery;
+    String emptyQuery;
 
     public SQLGameDAO() throws DataAccessException {
         // TODO
@@ -60,6 +61,11 @@ public class SQLGameDAO implements GameDAO {
                 """
            SELECT * FROM game
            """;
+
+        this.emptyQuery =
+                """
+            SELECT EXISTS(SELECT 1 FROM game LIMIT 1)
+            """;
 
         DatabaseDAOCommunicator.configureDatabase(createStatements);
     }
@@ -174,4 +180,7 @@ public class SQLGameDAO implements GameDAO {
         return new GameData(gameId, whiteUsername, blackUsername, gameName, chessGame);
     }
 
+    public boolean empty() throws DataAccessException {
+        return DatabaseDAOCommunicator.checkEmptyTable(this.emptyQuery);
+    }
 }

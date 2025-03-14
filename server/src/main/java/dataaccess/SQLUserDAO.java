@@ -6,6 +6,7 @@ import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -47,6 +48,11 @@ public class SQLUserDAO implements UserDAO{
         this.deleteStatementStub =
                 """
             DELETE FROM user WHERE username=
+            """;
+
+        this.emptyQuery =
+                """
+            SELECT EXISTS(SELECT 1 FROM user LIMIT 1)
             """;
 
         DatabaseDAOCommunicator.configureDatabase(createStatements);
@@ -95,5 +101,9 @@ public class SQLUserDAO implements UserDAO{
 
     public boolean verifyUser(String inputPassword, String hashedPassword) {
         return BCrypt.checkpw(inputPassword, hashedPassword);
+    }
+
+    public boolean empty() throws DataAccessException {
+        return DatabaseDAOCommunicator.checkEmptyTable(this.emptyQuery);
     }
 }
