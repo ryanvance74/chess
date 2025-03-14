@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 import service.*;
 import chess.ChessGame;
 import dataaccess.*;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.*;
 import passoff.model.*;
 import server.Server;
 import org.junit.jupiter.api.Assertions;
+import spark.utils.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +33,6 @@ public class DatabaseInternalUnitTests {
     private static SQLGameDAO gameDao;
     private static SQLAuthDAO authDao;
     private static UserService userService;
-    private static GameService gameService;
 
     @BeforeEach
     public void setup() {
@@ -40,8 +41,6 @@ public class DatabaseInternalUnitTests {
             userDao = new SQLUserDAO();
             gameDao = new SQLGameDAO();
             authDao = new SQLAuthDAO();
-            userService = new UserService(userDao, authDao);
-            gameService = new GameService(gameDao, authDao);
         } catch (Exception e) {
             System.out.println("FAILED ON SETUP");
             System.exit(1);
@@ -61,6 +60,9 @@ public class DatabaseInternalUnitTests {
         }
     }
 
+
+
+
     @DisplayName("Clear Database")
     @Test
     public void goodClear() {
@@ -77,7 +79,11 @@ public class DatabaseInternalUnitTests {
             authDao.createAuth("small_user");
             authDao.createAuth("FC_Bayern279");}
         );
-        Assertions.assertDoesNotThrow(() -> ClearService.clearDatabase(authDao, userDao, gameDao));
+        Assertions.assertDoesNotThrow(() -> {
+            userDao.clearData();
+            authDao.clearData();
+            gameDao.clearData();
+        });
         Assertions.assertDoesNotThrow(() -> {
             Assertions.assertTrue(authDao.empty() && gameDao.empty() && userDao.empty());
         });
@@ -85,156 +91,243 @@ public class DatabaseInternalUnitTests {
     }
 
     @Test
-    public void goodRegister() {
-        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
-        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
+    public void goodCreateUser() {
+        Assertions.assertDoesNotThrow(() -> userDao.createUser("myUsername1234", "myPassword5678", "test@email.byu.edu"));
+        Assertions.assertDoesNotThrow(() -> userDao.createUser("testUser_jdk", "epic_password_529", "vim@nano.edu"));
 
     }
 
     @Test
-    public void badRegister() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            userService.register(new RegisterRequest("myUsername1234", null, "test@email.byu.edu"));
-        });
+    public void badCreateUser() {
         Assertions.assertThrows(DuplicateUserException.class, () -> {
-            userService.register(new RegisterRequest("myUsername1234", "epic_password_529", "test@email.byu.edu"));
-            userService.register(new RegisterRequest("myUsername1234", "epic_password_529", "new@email.byu.edu"));
+            userDao.createUser("myUsername1234", "epic_password_529", "test@email.byu.edu");
+            userDao.createUser("myUsername1234", "epic_password_529", "new@email.byu.edu");
         });
 
     }
 
     @Test
-    public void goodLogin() {
-        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
-        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
-        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("myUsername1234", "myPassword5678")));
-        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("testUser_jdk", "epic_password_529")));
-
-    }
-
-    @Test
-    public void badLogin() {
-        Assertions.assertThrows(UnauthorizedRequestException.class, () -> {
-            userService.login(new LoginRequest("myUsername1234", "epic_password_529"));
-            userService.login(new LoginRequest("myUsername1234", "epic_password_529"));
+    public void goodGetUser() {
+        Assertions.assertDoesNotThrow(() -> userDao.createUser("myUsername1234", "myPassword5678", "test@email.byu.edu"));
+        Assertions.assertDoesNotThrow(() -> {
+            userDao.getUser("myUsername1234");
         });
-
     }
 
     @Test
-    public void goodLogout() {
-        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
-        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
-        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("myUsername1234", "myPassword5678")));
+    public void badGetUser() {
+        Assertions.assertDoesNotThrow(() -> userDao.createUser("myUsername1234", "myPassword5678", "test@email.byu.edu"));
+        Assertions.assertDoesNotThrow(() -> {
+            userDao.getUser("invalidUsername1234");
+        });
+    }
+
+    @Test
+    public void goodHashPassword() {
+        String hashedPassword = BCrypt.hashpw("password123456", BCrypt.gensalt());
+        Assertions.assertTrue(userDao.verifyUser("password123456", hashedPassword));
+    }
+
+    @Test
+    public void badHashPassword() {
+        String hashedPassword = BCrypt.hashpw("password123456", BCrypt.gensalt());
+        Assertions.assertFalse(userDao.verifyUser("differentPassword", hashedPassword));
+    }
+
+    @Test
+    public void goodEmpty() {
+        Assertions.assertDoesNotThrow(() -> {
+            Assertions.assertTrue(userDao.empty());
+        });
+    }
+
+    @Test
+    public void badEmpty() {
+        Assertions.assertDoesNotThrow(() -> {
+            userDao.createUser("testUser_jdk", "epic_password_529", "vim@nano.edu");
+        });
 
         Assertions.assertDoesNotThrow(() -> {
-                    LoginResult j = userService.login(new LoginRequest("testUser_jdk", "epic_password_529"));
-                    userService.logout(new LogoutRequest(j.authToken()));
-                }
-
-        );
-
+            Assertions.assertFalse(userDao.empty());
+        });
     }
 
-    @Test
-    public void badLogout() {
-        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
-        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
-        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("myUsername1234", "myPassword5678")));
-        Assertions.assertDoesNotThrow(() -> {}
-        );
-        Assertions.assertThrows(UnauthorizedRequestException.class, () -> {
-                    LoginResult j = userService.login(new LoginRequest("testUser_jdk1", "epic_password_529"));
-                    userService.logout(new LogoutRequest(j.authToken()+"1"));
-                }
+//    @Test
+//    public void goodLogin() {
+//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
+//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
+//        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("myUsername1234", "myPassword5678")));
+//        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("testUser_jdk", "epic_password_529")));
+//
+//    }
 
-        );
-    }
+//    @Test
+//    public void badLogin() {
+//        Assertions.assertThrows(UnauthorizedRequestException.class, () -> {
+//            userService.login(new LoginRequest("myUsername1234", "epic_password_529"));
+//            userService.login(new LoginRequest("myUsername1234", "epic_password_529"));
+//        });
+//
+//    }
+
+//    @Test
+//    public void goodLogout() {
+//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
+//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
+//        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("myUsername1234", "myPassword5678")));
+//
+//        Assertions.assertDoesNotThrow(() -> {
+//                    LoginResult j = userService.login(new LoginRequest("testUser_jdk", "epic_password_529"));
+//                    userService.logout(new LogoutRequest(j.authToken()));
+//                }
+//
+//        );
+//
+//    }
+
+//    @Test
+//    public void badLogout() {
+//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
+//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
+//        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("myUsername1234", "myPassword5678")));
+//        Assertions.assertDoesNotThrow(() -> {}
+//        );
+//        Assertions.assertThrows(UnauthorizedRequestException.class, () -> {
+//                    LoginResult j = userService.login(new LoginRequest("testUser_jdk1", "epic_password_529"));
+//                    userService.logout(new LogoutRequest(j.authToken()+"1"));
+//                }
+//
+//        );
+//    }
 
     @Test
-    public void goodListGames() {
+    public void goodCreateAuth() {
         Assertions.assertDoesNotThrow(() -> {
-
-        gameDao.createGame("game2435");
-        gameDao.createGame("spiel21");
-        AuthData auth = authDao.createAuth("testuser74");
-        Collection<GameData> array = new ArrayList<>();
-
-        Assertions.assertTrue(() -> {
-            try {
-                ListGamesResult result = gameService.listGames(auth.authToken());
-                boolean found1 = false;
-                boolean found2 = false;
-                for (ListGameResultSingle game : result.games()) {
-                    if (game.gameName().equals("game2435")) {
-                        found1 = true;
-                    }
-                    if (game.gameName().equals("spiel21")) {
-                        found2 = true;
-                    }
-                }
-                return found1 && found2;
-            } catch (Exception e) {
-                return false;
-            }
-        });
-
+            AuthData auth = authDao.createAuth("testuser74");
         });
     }
 
     @Test
-    public void badListGames() {
-        Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.listGames("234"));
+    public void badCreateAuth() {
+        Assertions.assertThrows(Exception.class, () -> authDao.createAuth(null));
 
+    }
+
+    @Test
+    public void goodGetAuth() {
+        Assertions.assertDoesNotThrow(() -> {
+            AuthData authData = authDao.createAuth("user234");
+            Assertions.assertEquals(authData, authDao.getAuth(authData.authToken()));
+        });
+
+    }
+
+    @Test
+    public void goodDeleteAuth() {
+        Assertions.assertDoesNotThrow(() -> {
+            AuthData authData = authDao.createAuth("user234");
+            authDao.deleteAuth(authData);
+            Assertions.assertTrue(authDao.empty());
+        });
+    }
+
+    @Test
+    public void anotherGoodDeleteAuth() {
+
+        Assertions.assertDoesNotThrow(() ->
+            {authDao.deleteAuth(new AuthData("auth_token1234567", "user1234"));
+        });
+    }
+
+    @Test
+    public void goodAuthEmpty() {
+        Assertions.assertDoesNotThrow(() -> {
+            Assertions.assertTrue(authDao.empty());
+        });
+    }
+
+    @Test
+    public void badAuthEmpty() {
+        Assertions.assertDoesNotThrow(() -> {
+            authDao.createAuth("user234");
+            Assertions.assertFalse(authDao.empty());
+        });
     }
 
     @Test
     public void goodCreateGame() {
         Assertions.assertDoesNotThrow(() -> {
-            AuthData authData = authDao.createAuth("user234");
-            Assertions.assertTrue(() -> {
-                try {
-                    CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
-                    return true;
-                } catch (Exception e) {
-                    return false;
-                }
-
-            });
+            gameDao.createGame("game1234");
         });
-
     }
 
     @Test
     public void badCreateGame() {
-        Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.createGame(new CreateGameRequest("234", "test_game")));
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            gameDao.createGame("""
+            game1234555;laksjdfhgjfkdls;ahgjfdkla;hgjfjdks
+            la;ghfjdksla;ghfjdksla;ghfjdksla;ghfjdksla;ghfj
+            ksal;ghfjdksla;ghfjdksla;ghfjdksla;ghfjdksla;gh
+            as;ldkfjghfjdksla;ghfjdksla;ghfjdksla;hgjfdksl;a
+            ghfjdksal;ghfjdksla;ghfjdksla;ghfjdksal;ghfjdksal;
+            ghfjdksal;ghfjdksal;ghfjdksla;jfhgjdfksl;aghfjdksl;a
+            ghfjdksal;ghfjdksal;ghfjdksal;ghfjdksla;ghfjdksal;
+            ghfjdksal;ghfjdksl;aghfjdks;alghjfdksal;ghfjdksla;
+            ghfjdksal;ghfjdksla;ghfjkdsa;lghfjdksal;ghfjdksal;
+            ghfjdksal;ghfjdksal;ghfjdksal;ghfjdksal;ghfjdksl;
+            hgfjdksa;lghfjdksal;ghfjdksal;ghfjdksal;ghfjdksla;
+            ghfjdksal;ghfjdksal;ghjfdksl;aghfjdksal;ghfjdksal;
+            ghfjdksal;ghfjdksla;ghfjdksla;ghfjdksla;ghfjdksa;
+            """);
+        });
+    }
+
+    @Test
+    public void goodListGames() {
+        Assertions.assertDoesNotThrow(() -> {
+            gameDao.createGame("game1234");
+            gameDao.createGame("game1235");
+            Assertions.assertEquals(2, gameDao.listGames().size());
+        });
+    }
+
+    @Test
+    public void anotherGoodListGames() {
+
+        Assertions.assertDoesNotThrow(() -> {
+            Assertions.assertEquals(0, gameDao.listGames().size());
+        });
     }
 
     @Test
     public void goodUpdateGame() {
         Assertions.assertDoesNotThrow(() -> {
-            AuthData authData = authDao.createAuth("user234");
-            Assertions.assertTrue(() -> {
-                try {
-                    CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
-                    gameService.updateGame(new UpdateGameRequest(authData.authToken(), ChessGame.TeamColor.WHITE, result.gameID()));
-                    return true;
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    return false;
-                }
-        });
-
-
-
+            GameData gameData = gameDao.createGame("game1234");
+            gameDao.updateGame(gameData.gameID(), "testuser74", ChessGame.TeamColor.WHITE.name());
         });
     }
 
     @Test
     public void badUpdateGame() {
-        Assertions.assertThrows(UnauthorizedRequestException.class, () -> {
-                    gameService.updateGame(new UpdateGameRequest("234", ChessGame.TeamColor.WHITE,234));
-                }
-        );
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            GameData gameData = gameDao.createGame("game1234");
+            gameDao.updateGame(gameData.gameID()+1, "testuser74", ChessGame.TeamColor.WHITE.name());
+        });
+    }
+
+    @Test
+    public void goodGameEmpty() {
+        Assertions.assertDoesNotThrow(() -> {
+            Assertions.assertTrue(gameDao.empty());
+        });
+    }
+
+    @Test
+    public void badGameEmpty() {
+
+        Assertions.assertDoesNotThrow(() -> {
+            gameDao.createGame("game1234");
+            Assertions.assertFalse(gameDao.empty());
+        });
     }
 }

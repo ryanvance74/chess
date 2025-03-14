@@ -30,7 +30,7 @@ public class SQLGameDAO implements GameDAO {
               `game_id` int NOT NULL AUTO_INCREMENT,
               `white_username` varchar(255),
               `black_username` varchar(255),
-              `game_name` TEXT NOT NULL,
+              `game_name` varchar(255) NOT NULL,
               `chess_game` TEXT NOT NULL,
               PRIMARY KEY (`game_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
@@ -120,25 +120,6 @@ public class SQLGameDAO implements GameDAO {
                 DatabaseDAOCommunicator.executeUpdate(updateStatement, username, gameData.gameID());
             }
         }
-    }
-
-    public void updateGame(int gameId, ChessMove move) throws DataAccessException {
-        GameData gameData = validateId(gameId);
-        if (gameData == null) {
-            throw new DataAccessException("ERROR: failed to retrieve game by given game ID. Does not exist.");
-        }
-
-        ChessGame chessGame = gameData.game();
-
-        try {
-            chessGame.makeMove(move);
-        } catch (InvalidMoveException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-
-        String serializedGame = DatabaseDAOCommunicator.serializeGame(chessGame);
-        String updateStatement = "UPDATE game SET game=? WHERE game_id=?";
-        DatabaseDAOCommunicator.executeUpdate(updateStatement, serializedGame, gameId);
     }
 
     private GameData validateId(int gameId) throws DataAccessException {
