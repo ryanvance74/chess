@@ -1,5 +1,9 @@
 package service;
 import dataaccess.*;
+import dataaccess.Exceptions.DataAccessException;
+import dataaccess.Exceptions.DuplicateUserException;
+import dataaccess.Exceptions.ServerErrorException;
+import dataaccess.Exceptions.UnauthorizedRequestException;
 import model.AuthData;
 import model.GameData;
 

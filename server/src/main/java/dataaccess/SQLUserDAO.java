@@ -1,14 +1,9 @@
 package dataaccess;
 
-import com.google.gson.Gson;
-import model.AuthData;
+import dataaccess.Exceptions.DataAccessException;
+import dataaccess.Exceptions.DuplicateUserException;
 import model.UserData;
-import org.eclipse.jetty.server.Authentication;
 import org.mindrot.jbcrypt.BCrypt;
-
-import javax.xml.crypto.Data;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class SQLUserDAO implements UserDAO{
     String insertStatement;
@@ -77,18 +72,6 @@ public class SQLUserDAO implements UserDAO{
         };
 
         return DatabaseDAOCommunicator.executeQuery(getUserStatement, handler, username);
-
-//        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(getUserStatement, handler, username)) {
-//            if (!rs.next()) {
-//                return null;
-//            }
-//            String password = rs.getString("password");
-//            String email    = rs.getString("email");
-//            return new UserData(username, password, email);
-//        } catch (SQLException e) {
-//            throw new DataAccessException(e.getMessage());
-//        }
-
     }
 
     public void clearData() throws DataAccessException{

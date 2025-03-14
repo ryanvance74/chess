@@ -1,14 +1,15 @@
 package server;
 
-import org.eclipse.jetty.server.Authentication;
+import dataaccess.Exceptions.BadRequestException;
+import dataaccess.Exceptions.DuplicateUserException;
+import dataaccess.Exceptions.ServerErrorException;
+import dataaccess.Exceptions.UnauthorizedRequestException;
 import service.*;
 import spark.Request;
 import spark.Response;
 import dataaccess.*;
-import model.*;
 import com.google.gson.Gson;
 import service.UserService;
-import com.google.gson.JsonArray;
 
 class UserHandler {
     UserDAO userDao;

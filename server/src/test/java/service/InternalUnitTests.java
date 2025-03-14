@@ -1,12 +1,12 @@
 package service;
 import chess.ChessGame;
 import dataaccess.*;
+import dataaccess.Exceptions.BadRequestException;
+import dataaccess.Exceptions.DuplicateUserException;
+import dataaccess.Exceptions.UnauthorizedRequestException;
 import model.AuthData;
 import model.GameData;
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.*;
-import passoff.model.*;
-import server.Server;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;

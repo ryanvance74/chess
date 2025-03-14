@@ -1,8 +1,8 @@
 package dataaccess;
-import model.AuthData;
+import dataaccess.Exceptions.DataAccessException;
+import dataaccess.Exceptions.DuplicateUserException;
 import model.GameData;
 import java.util.Collection;
-import java.util.HashSet;
 
 public interface GameDAO {
     GameData createGame(String gameName) throws DataAccessException;

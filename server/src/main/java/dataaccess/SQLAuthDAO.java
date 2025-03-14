@@ -1,17 +1,9 @@
 package dataaccess;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
-import chess.ChessGame;
-import com.google.gson.Gson;
-import java.sql.*;
-import java.sql.SQLException;
 import java.util.UUID;
 
+import dataaccess.Exceptions.DataAccessException;
 import model.AuthData;
-
-import javax.xml.crypto.Data;
 
 public class SQLAuthDAO implements AuthDAO {
     String insertStatement;
@@ -79,15 +71,6 @@ public class SQLAuthDAO implements AuthDAO {
         };
 
         return DatabaseDAOCommunicator.executeQuery(authQuery, handler, authToken);
-
-//        try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(authQuery, authToken)) {
-//            String username = rs.getString("username");
-//
-//            return new AuthData(authToken, username);
-//        } catch (SQLException e) {
-//            throw new DataAccessException(e.getMessage());
-//        }
-
     };
 
     public void deleteAuth(AuthData authData) throws DataAccessException {
@@ -104,5 +87,3 @@ public class SQLAuthDAO implements AuthDAO {
 
 
 }
-
-

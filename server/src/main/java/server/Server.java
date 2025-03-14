@@ -1,13 +1,8 @@
 package server;
 
 import dataaccess.*;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
-import model.*;
+import dataaccess.Exceptions.DataAccessException;
 import spark.*;
-import service.*;
-
-import javax.xml.crypto.Data;
 
 public class Server {
 

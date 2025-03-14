@@ -1,7 +1,10 @@
 package server;
 
 import dataaccess.*;
-import org.eclipse.jetty.client.DuplexConnectionPool;
+import dataaccess.Exceptions.DataAccessException;
+import dataaccess.Exceptions.DuplicateUserException;
+import dataaccess.Exceptions.ServerErrorException;
+import dataaccess.Exceptions.UnauthorizedRequestException;
 import service.*;
 import spark.Request;
 import spark.Response;

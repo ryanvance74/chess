@@ -1,14 +1,12 @@
 package server;
 import dataaccess.AuthDAO;
+import dataaccess.Exceptions.DataAccessException;
 import service.ErrorResult;
-import spark.Spark;
 import spark.Request;
 import spark.Response;
 import service.ClearService;
 import dataaccess.*;
 import com.google.gson.Gson;
-import java.util.Collection;
-import java.util.Collections;
 
 class ClearHandler {
     GameDAO gameDao;

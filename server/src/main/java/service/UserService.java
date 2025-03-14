@@ -1,10 +1,8 @@
 package service;
 import dataaccess.*;
+import dataaccess.Exceptions.*;
 import model.UserData;
 import model.AuthData;
-import server.Server;
-import org.mindrot.jbcrypt.BCrypt;
-import java.rmi.ServerError;
 
 public class UserService {
     UserDAO userDao;

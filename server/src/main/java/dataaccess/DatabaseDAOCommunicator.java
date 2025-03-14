@@ -2,20 +2,16 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import dataaccess.Exceptions.DataAccessException;
+import dataaccess.Exceptions.DuplicateUserException;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static java.sql.Types.NULL;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class DatabaseDAOCommunicator {
-
-    public final static String emptyQueryStub =
-            """
-        SELECT EXISTS(SELECT 1 FROM %s LIMIT 1)
-        """;
 
      public static void configureDatabase(String[] createStatements) throws DataAccessException {
          DatabaseManager.createDatabase();
@@ -29,13 +25,6 @@ public class DatabaseDAOCommunicator {
              throw new DataAccessException(String.format("[500] Unable to configure database: %s", ex.getMessage()));
          }
      }
-
-    public static ChessGame readGame(ResultSet rs) throws SQLException {
-         Gson gson = new Gson();
-         // ID?
-         return gson.fromJson(rs.getString("json"), ChessGame.class);
-    }
-
 
     public static String serializeGame(ChessGame game) {
          Gson gson = new Gson();
@@ -53,11 +42,6 @@ public class DatabaseDAOCommunicator {
                         return rs.getInt(1);
                     }
                 }
-//                var rs = ps.getGeneratedKeys();
-//                if (rs.next()) {
-//                    return rs.getInt(1);
-//                }
-
                 return rows;
                 // tried overriding failure with this exception and it seemed to fix the createUser method. createGame is still broken.
             }
@@ -99,11 +83,6 @@ public class DatabaseDAOCommunicator {
              return true;
          };
          return executeQuery(tableQuery, handler);
-//       try (ResultSet rs = DatabaseDAOCommunicator.executeQuery(tableQuery, rs -> {rs.getInt(1);})) {
-//           return rs.getInt(1) == 0;
-//       } catch (SQLException e) {
-//          throw new DataAccessException(e.getMessage());
-//       }
     }
 
     private static void prepareStatementHelper(PreparedStatement ps, Object... params) throws SQLException {

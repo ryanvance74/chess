@@ -1,10 +1,9 @@
 package dataaccess;
 
+import dataaccess.Exceptions.DuplicateUserException;
 import model.UserData;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class MemoryUserDAO implements UserDAO {
 

@@ -1,10 +1,6 @@
 package dataaccess;
+import dataaccess.Exceptions.DataAccessException;
 import model.AuthData;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.UUID;
 
 public interface AuthDAO {
     AuthData createAuth(String username) throws DataAccessException;

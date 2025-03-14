@@ -1,6 +1,8 @@
 package dataaccess;
 
 import chess.ChessGame;
+import dataaccess.Exceptions.DataAccessException;
+import dataaccess.Exceptions.DuplicateUserException;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
@@ -9,21 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
 import service.*;
-import chess.ChessGame;
-import dataaccess.*;
-import model.AuthData;
-import model.GameData;
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.*;
-import passoff.model.*;
-import server.Server;
-import org.junit.jupiter.api.Assertions;
-import spark.utils.Assert;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Collection;
 
 
 
@@ -151,54 +139,6 @@ public class DatabaseInternalUnitTests {
             Assertions.assertFalse(userDao.empty());
         });
     }
-
-//    @Test
-//    public void goodLogin() {
-//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
-//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
-//        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("myUsername1234", "myPassword5678")));
-//        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("testUser_jdk", "epic_password_529")));
-//
-//    }
-
-//    @Test
-//    public void badLogin() {
-//        Assertions.assertThrows(UnauthorizedRequestException.class, () -> {
-//            userService.login(new LoginRequest("myUsername1234", "epic_password_529"));
-//            userService.login(new LoginRequest("myUsername1234", "epic_password_529"));
-//        });
-//
-//    }
-
-//    @Test
-//    public void goodLogout() {
-//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
-//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
-//        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("myUsername1234", "myPassword5678")));
-//
-//        Assertions.assertDoesNotThrow(() -> {
-//                    LoginResult j = userService.login(new LoginRequest("testUser_jdk", "epic_password_529"));
-//                    userService.logout(new LogoutRequest(j.authToken()));
-//                }
-//
-//        );
-//
-//    }
-
-//    @Test
-//    public void badLogout() {
-//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
-//        Assertions.assertDoesNotThrow(() -> userService.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
-//        Assertions.assertDoesNotThrow(() -> userService.login(new LoginRequest("myUsername1234", "myPassword5678")));
-//        Assertions.assertDoesNotThrow(() -> {}
-//        );
-//        Assertions.assertThrows(UnauthorizedRequestException.class, () -> {
-//                    LoginResult j = userService.login(new LoginRequest("testUser_jdk1", "epic_password_529"));
-//                    userService.logout(new LogoutRequest(j.authToken()+"1"));
-//                }
-//
-//        );
-//    }
 
     @Test
     public void goodCreateAuth() {

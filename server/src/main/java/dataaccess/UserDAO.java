@@ -1,10 +1,7 @@
 package dataaccess;
-import model.AuthData;
+import dataaccess.Exceptions.DataAccessException;
+import dataaccess.Exceptions.DuplicateUserException;
 import model.UserData;
-
-import javax.xml.crypto.Data;
-import java.util.Collection;
-import java.util.HashSet;
 
 public interface UserDAO {
     UserData createUser(String username, String password, String email) throws DataAccessException, DuplicateUserException;
