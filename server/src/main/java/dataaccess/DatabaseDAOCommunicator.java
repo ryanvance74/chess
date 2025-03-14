@@ -85,7 +85,12 @@ public class DatabaseDAOCommunicator {
     }
 
     public static boolean checkEmptyTable(String tableQuery) throws DataAccessException {
-         DatabaseDAOCommunicator.executeQuery(tableQuery, rs -> rs.getInt(1));
+         DatabaseDAOCommunicator.executeQuery(tableQuery, rs -> {
+             if (rs.next()) {
+                 return rs.getInt(1);
+             }
+             return 0;
+         });
 
          ExecuteQueryHandler<Boolean> handler = rs -> {
              if (rs.next()) {

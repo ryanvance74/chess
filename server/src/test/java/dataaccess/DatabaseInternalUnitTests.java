@@ -49,6 +49,17 @@ public class DatabaseInternalUnitTests {
 
 
     }
+    @AfterEach
+    public void takeDown() {
+        try {
+            authDao.clearData();
+            gameDao.clearData();
+            userDao.clearData();
+        } catch (Exception e) {
+            System.out.println("FAILED ON TAKEDOWN");
+            System.exit(1);
+        }
+    }
 
     @DisplayName("Clear Database")
     @Test
@@ -142,6 +153,8 @@ public class DatabaseInternalUnitTests {
 
     @Test
     public void goodListGames() {
+        Assertions.assertDoesNotThrow(() -> {
+
         gameDao.createGame("game2435");
         gameDao.createGame("spiel21");
         AuthData auth = authDao.createAuth("testuser74");
@@ -164,10 +177,9 @@ public class DatabaseInternalUnitTests {
             } catch (Exception e) {
                 return false;
             }
-
-
         });
 
+        });
     }
 
     @Test
@@ -178,17 +190,19 @@ public class DatabaseInternalUnitTests {
 
     @Test
     public void goodCreateGame() {
-        AuthData authData = authDao.createAuth("user234");
-        Assertions.assertTrue(() -> {
-            try {
-                CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
-                return true;
-            } catch (Exception e) {
-                return false;
-            }
+        Assertions.assertDoesNotThrow(() -> {
+            AuthData authData = authDao.createAuth("user234");
+            Assertions.assertTrue(() -> {
+                try {
+                    CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
+                    return true;
+                } catch (Exception e) {
+                    return false;
+                }
 
-
+            });
         });
+
     }
 
     @Test
@@ -198,16 +212,19 @@ public class DatabaseInternalUnitTests {
 
     @Test
     public void goodUpdateGame() {
-        AuthData authData = authDao.createAuth("user234");
-        Assertions.assertTrue(() -> {
-            try {
-                CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
-                gameService.updateGame(new UpdateGameRequest(authData.authToken(), ChessGame.TeamColor.WHITE, result.gameID()));
-                return true;
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                return false;
-            }
+        Assertions.assertDoesNotThrow(() -> {
+            AuthData authData = authDao.createAuth("user234");
+            Assertions.assertTrue(() -> {
+                try {
+                    CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
+                    gameService.updateGame(new UpdateGameRequest(authData.authToken(), ChessGame.TeamColor.WHITE, result.gameID()));
+                    return true;
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    return false;
+                }
+        });
+
 
 
         });
