@@ -12,7 +12,7 @@ The application implements a multiplayer chess server and a command line chess c
 
 The application has three modules.
 
-- **Client**: The command line program used to play a game of chess over the network.
+- **client**: The command line program used to play a game of chess over the network.
 - **Server**: The command line program that listens for network requests from the client and manages users and games.
 - **Shared**: Code that is used by both the client and the server. This includes the rules of chess and tracking the state of a game.
 
@@ -48,5 +48,5 @@ Once you have compiled your project into an uber jar, you can execute it with th
 ```sh
 java -jar client/target/client-jar-with-dependencies.jar
 
-♕ 240 Chess Client: chess.ChessPiece@7852e922
+♕ 240 Chess client: chess.ChessPiece@7852e922
 ```
