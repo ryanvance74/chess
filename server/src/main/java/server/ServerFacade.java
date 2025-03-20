@@ -17,11 +17,11 @@ public class ServerFacade {
 
     // returns authToken
     public RegisterResult register(RegisterRequest req) {
-        return this.makeRequest("POST", "/user", req, RegisterResult.class);
+        return this.makeRequest("POST", "/user", req, RegisterResult.class, null);
     }
 
     public LoginResult login(LoginRequest req) {
-        return this.makeRequest("POST", "/session", req, LoginResult.class);
+        return this.makeRequest("POST", "/session", req, LoginResult.class, null);
     }
 
     public void logout(LogoutRequest req) {
@@ -56,7 +56,9 @@ public class ServerFacade {
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
-            addHeaders(http, headers);
+            if (headers != null) {
+                addHeaders(http, headers);
+            }
 
             writeBody(request, http);
             http.connect();
