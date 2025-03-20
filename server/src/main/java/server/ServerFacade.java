@@ -2,6 +2,11 @@ package server;
 import java.net.*;
 import java.io.*;
 import com.google.gson.Gson;
+import com.mysql.cj.x.protobuf.MysqlxCrud;
+import service.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ServerFacade {
     private final String serverUrl;
@@ -9,15 +14,49 @@ public class ServerFacade {
     public ServerFacade(String url) {
         this.serverUrl = url;
     }
-    // TODO: put in methods to call to get things to happen
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    // returns authToken
+    public RegisterResult register(RegisterRequest req) {
+        return this.makeRequest("POST", "/user", req, RegisterResult.class);
+    }
+
+    public LoginResult login(LoginRequest req) {
+        return this.makeRequest("POST", "/session", req, LoginResult.class);
+    }
+
+    public void logout(LogoutRequest req) {
+        Map<String, String> map = new HashMap<>();
+        map.put("authToken", req.authToken());
+        this.makeRequest("DELETE", "/session", null, Void.class, map);
+    }
+
+    public ListGamesResult listGames(String authToken) {
+        Map<String, String> map = new HashMap<>();
+        map.put("authToken", authToken);
+        return this.makeRequest("GET", "/game", null, ListGamesResult.class, map);
+    }
+
+    public CreateGameResult createGame(CreateGameRequest req) {
+        Map<String, String> map = new HashMap<>();
+        map.put("authToken", req.authToken());
+        return this.makeRequest("POST", "/game", req, CreateGameResult.class, map);
+    }
+
+    public void joinGame(UpdateGameRequest req) {
+        Map<String, String> map = new HashMap<>();
+        map.put("authToken", req.authToken());
+        this.makeRequest("PUT", "/game", req, CreateGameResult.class, map);
+    }
+
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, Map<String, String> headers) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
 
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+
+            addHeaders(http, headers);
 
             writeBody(request, http);
             http.connect();
@@ -27,6 +66,12 @@ public class ServerFacade {
             throw e;
         } catch (Exception e) {
             throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+    private void addHeaders(HttpURLConnection http, Map<String, String> headers) {
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            http.setRequestProperty(entry.getKey(), entry.getValue());
         }
     }
 
