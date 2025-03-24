@@ -11,6 +11,7 @@ import ui.EscapeSequences;
 
 import java.lang.StringBuilder;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
@@ -20,10 +21,12 @@ public class GameClient {
     private boolean signedIn;
     private String currentAuthToken;
     private final ServerFacade serverFacade;
+    private HashMap<Integer, ListGameResultSingle> gameCodeMap;
 
     public GameClient(String serverUrl) {
         this.serverFacade = new ServerFacade(serverUrl);
         this.signedIn = false;
+        this.gameCodeMap = new HashMap<>();
     }
 
     public String eval(String input) {
@@ -88,14 +91,32 @@ public class GameClient {
     public String listGames() throws ResponseException {
         if (!this.signedIn) throw new ResponseException(400, "Not logged in yet.");
         ListGamesResult result = serverFacade.listGames(this.currentAuthToken);
-        return result.toString();
+        StringBuilder sb = new StringBuilder();
+        int gameCounter = 1;
+        this.gameCodeMap.clear();
+        sb.append("ID | NAME | WHITE | BLACK\n");
+        for (ListGameResultSingle game : result.games()) {
+            this.gameCodeMap.put(gameCounter, game);
+            sb.append(gameCounter);
+            sb.append(" ");
+            sb.append(game.gameName());
+            sb.append(" ");
+            sb.append(game.whiteUsername());
+            sb.append(" ");
+            sb.append(game.blackUsername());
+            sb.append("\n");
+            gameCounter++;
+        }
+
+        return sb.toString();
     }
 
     public String joinGame(String... params) throws ResponseException {
         if (params.length >= 1 && (params[1].equalsIgnoreCase("white") || params[1].equalsIgnoreCase("black"))) {
             if (!this.signedIn) throw new ResponseException(400, "Not logged in yet.");
             chess.ChessGame.TeamColor color = params[1].equalsIgnoreCase("WHITE") ? WHITE : BLACK;
-            UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, color, Integer.parseInt(params[0]));
+            int gameId = this.gameCodeMap.get(Integer.parseInt(params[0])).gameID();
+            UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, color, gameId);
             serverFacade.joinGame(req);
             return String.format("Joined game: %s", params[0]);
         }
