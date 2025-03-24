@@ -99,28 +99,28 @@ public class GameClient {
         StringBuilder sb = new StringBuilder();
         if (this.signedIn) {
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "create <NAME>");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - a game");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - a game\n");
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "list");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - games");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - games\n");
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "join <ID> [WHITE|BLACK]");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - a game");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - a game\n");
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "observe <ID>");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - a game");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - a game\n");
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "logout");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - a user");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - a user\n");
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "quit");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - the application");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - the application\n");
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "help");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - with commands");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - with commands\n");
         } else {
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "register <USERNAME> <PASSWORD> <EMAIL>");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - to create an account");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - to create an account\n");
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "login <USERNAME> <PASSWORD>");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - to play chess");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - to play chess\n");
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "quit");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - the application");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - the application\n");
             sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "help");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLACK + " - with commands");
+            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - with commands\n");
         }
         return sb.toString();
     }

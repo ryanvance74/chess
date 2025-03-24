@@ -6,9 +6,10 @@ import java.util.Scanner;
 public class UniversalRepl {
     private final GameClient client;
 
-    public UniversalRepl(String serverUrl, GameClient client) {
-        this.client = client;
+    public UniversalRepl(String serverUrl) {
+        this.client = new GameClient(serverUrl);
     }
+
     public void run() {
         System.out.println("\uD83D\uDC36 Welcome to Chess. Sign in to start.");
         System.out.print(client.help());
@@ -31,6 +32,6 @@ public class UniversalRepl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_BLACK + ">>> ");
+        System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_GREEN + ">>> ");
     }
 }
