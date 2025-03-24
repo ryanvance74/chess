@@ -27,7 +27,7 @@ public class GameService {
                 Collection<GameData> games = gameDao.listGames();
                 Collection<ListGameResultSingle> listGameResultSingles = new ArrayList<>();
                 for (GameData game : games) {
-                    listGameResultSingles.add(new ListGameResultSingle(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+                    listGameResultSingles.add(new ListGameResultSingle(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
                 }
                 return new ListGamesResult(listGameResultSingles);
             } catch (Exception e) {
