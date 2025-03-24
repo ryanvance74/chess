@@ -24,8 +24,9 @@ public class UniversalRepl {
                 result = client.eval(line);
                 System.out.print(result);
             } catch (Throwable e) {
+
                 var msg = e.toString();
-                System.out.print(msg);
+                System.out.print(msg + "error error test");
             }
         }
         System.out.println();

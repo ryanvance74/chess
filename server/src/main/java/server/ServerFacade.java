@@ -92,8 +92,17 @@ public class ServerFacade {
         if (!isSuccessful(status)) {
             try (InputStream respErr = http.getErrorStream()) {
                 if (respErr != null) {
-                    throw new ResponseException(500, respErr.toString());
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(respErr))) {
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line);
+                        }
+                        throw new ResponseException(status, sb.toString());
+                    }
+//                    throw new ResponseException(500, respErr.toString());
                 }
+
             }
 
             throw new ResponseException(status, "other failure: " + status);

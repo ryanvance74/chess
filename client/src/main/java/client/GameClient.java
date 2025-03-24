@@ -1,6 +1,7 @@
 package client;
 import chess.ChessGame;
-import com.mysql.cj.x.protobuf.MysqlxCrud;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import server.ResponseException;
 import server.ServerFacade;
 import service.*;
@@ -37,7 +38,7 @@ public class GameClient {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return ex.getMessage();
+            return new Gson().fromJson(ex.getMessage(), JsonObject.class).get("message").getAsString();
         }
     }
 
