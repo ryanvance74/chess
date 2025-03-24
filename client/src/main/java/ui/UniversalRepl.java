@@ -26,7 +26,7 @@ public class UniversalRepl {
             } catch (Throwable e) {
 
                 var msg = e.toString();
-                System.out.print(msg + "error error test");
+                System.out.print(msg + "***FAILED TO EVALUATE***");
             }
         }
         System.out.println();

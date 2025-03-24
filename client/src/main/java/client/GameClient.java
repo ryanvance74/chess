@@ -1,7 +1,9 @@
 package client;
+import chess.ChessBoard;
 import chess.ChessGame;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import chess.ChessPiece;
+import chess.ChessPosition;
+import com.google.gson.*;
 import server.ResponseException;
 import server.ServerFacade;
 import service.*;
@@ -9,6 +11,10 @@ import ui.EscapeSequences;
 
 import java.lang.StringBuilder;
 import java.util.Arrays;
+
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessPiece.PieceType.*;
 
 public class GameClient {
     private boolean signedIn;
@@ -38,7 +44,12 @@ public class GameClient {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return new Gson().fromJson(ex.getMessage(), JsonObject.class).get("message").getAsString();
+            try {
+                JsonObject obj = new Gson().fromJson(ex.getMessage(), JsonObject.class);
+                return obj.get("message").getAsString();
+            } catch (JsonSyntaxException e) {
+                return ex.getMessage();
+            }
         }
     }
 
@@ -81,12 +92,12 @@ public class GameClient {
     }
 
     public String joinGame(String... params) throws ResponseException {
-        if (params.length >= 1 && (params[1].equals("WHITE") || params[1].equals("BLACK"))) {
+        if (params.length >= 1 && (params[1].equalsIgnoreCase("white") || params[1].equalsIgnoreCase("black"))) {
             if (!this.signedIn) throw new ResponseException(400, "Not logged in yet.");
-            chess.ChessGame.TeamColor color = params[1].equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            chess.ChessGame.TeamColor color = params[1].equalsIgnoreCase("WHITE") ? WHITE : BLACK;
             UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, color, Integer.parseInt(params[0]));
             serverFacade.joinGame(req);
-            return String.format("Joined game: %s.", params[0]);
+            return String.format("Joined game: %s", params[0]);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
@@ -125,4 +136,38 @@ public class GameClient {
         }
         return sb.toString();
     }
+
+//    public String drawBoard(ChessGame.TeamColor orientationTeamColor, ChessGame game) {
+//        StringBuilder sb = new StringBuilder();
+//        ChessBoard board = game.getBoard();
+//        if (orientationTeamColor == BLACK) {
+//            for (int row=1; row < 9; row++) {
+//                for (int col=1; col < 9; col++) {
+//                    String tileColor;
+//
+//                    if (col % 2 == 1) {
+//                        tileColor = row % 2 == 0 ? EscapeSequences.SET_BG_COLOR_DARK_GREY : EscapeSequences.SET_BG_COLOR_WHITE;
+//                    } else {
+//                        tileColor = row % 2 == 1 ? EscapeSequences.SET_BG_COLOR_DARK_GREY : EscapeSequences.SET_BG_COLOR_WHITE;
+//                    }
+//
+//                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+//                    ChessPiece.PieceType pieceType = piece.getPieceType();
+//                    ChessGame.TeamColor pieceColor = piece.getTeamColor();
+//                    switch (pieceType) {
+//                        case KING -> {
+//                            if (pieceColor == WHITE) {
+//                                sb.append(tileColor + EscapeSequences.WHITE_KING);
+//                            } else {
+//                                sb.append(tileColor + EscapeSequences.SET_BG_COLOR_BLACK);
+//                            }
+//
+//                        }
+//                        case
+//                    }
+//
+//                }
+//            }
+//        }
+//    }
 }

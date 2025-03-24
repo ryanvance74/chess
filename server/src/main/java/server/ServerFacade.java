@@ -26,25 +26,25 @@ public class ServerFacade {
 
     public void logout(LogoutRequest req) {
         Map<String, String> map = new HashMap<>();
-        map.put("authToken", req.authToken());
+        map.put("authorization", req.authToken());
         this.makeRequest("DELETE", "/session", null, Void.class, map);
     }
 
     public ListGamesResult listGames(String authToken) {
         Map<String, String> map = new HashMap<>();
-        map.put("authToken", authToken);
+        map.put("authorization", authToken);
         return this.makeRequest("GET", "/game", null, ListGamesResult.class, map);
     }
 
     public CreateGameResult createGame(CreateGameRequest req) {
         Map<String, String> map = new HashMap<>();
-        map.put("authToken", req.authToken());
+        map.put("authorization", req.authToken());
         return this.makeRequest("POST", "/game", req, CreateGameResult.class, map);
     }
 
     public void joinGame(UpdateGameRequest req) {
         Map<String, String> map = new HashMap<>();
-        map.put("authToken", req.authToken());
+        map.put("authorization", req.authToken());
         this.makeRequest("PUT", "/game", req, CreateGameResult.class, map);
     }
 
@@ -63,6 +63,7 @@ public class ServerFacade {
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
+            if (responseClass == Void.class) return null;
             return readBody(http, responseClass);
         } catch (ResponseException e) {
             throw e;
