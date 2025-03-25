@@ -22,20 +22,20 @@ public class GameClient {
     private final ServerFacade serverFacade;
     private final HashMap<Integer, ListGameResultSingle> gameCodeMap;
 
-    private final HashMap<Integer, String> COL_LABEL_MAP;
+    private final HashMap<Integer, String> colLabelMap;
     public GameClient(String serverUrl) {
         this.serverFacade = new ServerFacade(serverUrl);
         this.signedIn = false;
         this.gameCodeMap = new HashMap<>();
-        this.COL_LABEL_MAP = new HashMap<>();
-        this.COL_LABEL_MAP.put(1,"a");
-        this.COL_LABEL_MAP.put(2,"b");
-        this.COL_LABEL_MAP.put(3,"c");
-        this.COL_LABEL_MAP.put(4,"d");
-        this.COL_LABEL_MAP.put(5,"e");
-        this.COL_LABEL_MAP.put(6,"f");
-        this.COL_LABEL_MAP.put(7,"g");
-        this.COL_LABEL_MAP.put(8,"h");
+        this.colLabelMap = new HashMap<>();
+        this.colLabelMap.put(1,"a");
+        this.colLabelMap.put(2,"b");
+        this.colLabelMap.put(3,"c");
+        this.colLabelMap.put(4,"d");
+        this.colLabelMap.put(5,"e");
+        this.colLabelMap.put(6,"f");
+        this.colLabelMap.put(7,"g");
+        this.colLabelMap.put(8,"h");
     }
 
     public String eval(String input) {
@@ -177,7 +177,7 @@ public class GameClient {
         drawHeader(sb);
         if (orientationTeamColor == BLACK) {
             for (int row=1; row < 9; row++) {
-                sb.append(SET_TEXT_BOLD + this.COL_LABEL_MAP.get(row));
+                sb.append(SET_TEXT_BOLD + this.colLabelMap.get(row));
                 for (int col=1; col < 9; col++) {
                     drawBoardHelper(sb, board, row, col);
                 }
@@ -186,12 +186,12 @@ public class GameClient {
 
         } else {
             for (int row=8; row > 0; row--) {
-                sb.append(SET_TEXT_BOLD + this.COL_LABEL_MAP.get(row) + " \u2009");
+                sb.append(SET_TEXT_BOLD + this.colLabelMap.get(row) + " \u2009");
                 for (int col=1; col < 9; col++) {
                     drawBoardHelper(sb, board, row, col);
                 }
                 sb.append(RESET_BG_COLOR);
-                sb.append(" \u2009" + SET_TEXT_BOLD + this.COL_LABEL_MAP.get(row));
+                sb.append(" \u2009" + SET_TEXT_BOLD + this.colLabelMap.get(row));
                 sb.append("\n");
             }
 
