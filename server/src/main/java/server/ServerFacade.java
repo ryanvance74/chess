@@ -15,6 +15,10 @@ public class ServerFacade {
         this.serverUrl = url;
     }
 
+    public void clear() {
+        this.makeRequest("DELETE", "/db", null, Void.class, null);
+    }
+
     // returns authToken
     public RegisterResult register(RegisterRequest req) {
         return this.makeRequest("POST", "/user", req, RegisterResult.class, null);
