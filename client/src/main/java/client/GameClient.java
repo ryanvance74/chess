@@ -5,7 +5,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.*;
 import server.ResponseException;
-import server.ServerFacade;
+import ServerFacade;
 import service.*;
 import ui.EscapeSequences;
 
@@ -15,7 +15,6 @@ import java.util.HashMap;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
-import static chess.ChessPiece.PieceType.*;
 import static ui.EscapeSequences.*;
 
 public class GameClient {

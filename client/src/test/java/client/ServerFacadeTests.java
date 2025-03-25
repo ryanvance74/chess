@@ -1,17 +1,12 @@
 package client;
 
 import chess.ChessGame;
-import dataaccess.exceptions.BadRequestException;
-import dataaccess.exceptions.DuplicateUserException;
-import dataaccess.exceptions.UnauthorizedRequestException;
-import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import server.ResponseException;
 import server.Server;
-import server.ServerFacade;
+import ServerFacade;
 import service.*;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -113,84 +108,82 @@ public class ServerFacadeTests {
         );
     }
 
-//    @Test
-//    public void goodListGames() {
-//        facade.createGame("game2435");
-//        facade.createGame("spiel21");
-//        AuthData auth = facade.createAuth("testuser74");
-//        Collection<GameData> array = new ArrayList<>();
-//
-//        Assertions.assertTrue(() -> {
-//            try {
-//                ListGamesResult result = gameService.listGames(auth.authToken());
-//                boolean found1 = false;
-//                boolean found2 = false;
-//                for (ListGameResultSingle game : result.games()) {
-//                    if (game.gameName().equals("game2435")) {
-//                        found1 = true;
-//                    }
-//                    if (game.gameName().equals("spiel21")) {
-//                        found2 = true;
-//                    }
-//                }
-//                return found1 && found2;
-//            } catch (Exception e) {
-//                return false;
-//            }
-//
-//
-//        });
-//
-//    }
-//
-//    @Test
-//    public void badListGames() {
-//        Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.listGames("234"));
-//
-//    }
-//
-//    @Test
-//    public void goodCreateGame() {
-//        AuthData authData = authDao.createAuth("user234");
-//        Assertions.assertTrue(() -> {
-//            try {
-//                CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
-//                return true;
-//            } catch (Exception e) {
-//                return false;
-//            }
-//
-//
-//        });
-//    }
-//
-//    @Test
-//    public void badCreateGame() {
-//        Assertions.assertThrows(UnauthorizedRequestException.class, () -> gameService.createGame(new CreateGameRequest("234", "test_game")));
-//    }
-//
-//    @Test
-//    public void goodUpdateGame() {
-//        AuthData authData = authDao.createAuth("user234");
-//        Assertions.assertTrue(() -> {
-//            try {
-//                CreateGameResult result = gameService.createGame(new CreateGameRequest(authData.authToken(), "game234"));
-//                gameService.updateGame(new UpdateGameRequest(authData.authToken(), ChessGame.TeamColor.WHITE, result.gameID()));
-//                return true;
-//            } catch (Exception e) {
-//                System.out.println(e.getMessage());
-//                return false;
-//            }
-//
-//
-//        });
-//    }
-//
-//    @Test
-//    public void badUpdateGame() {
-//        Assertions.assertThrows(UnauthorizedRequestException.class, () -> {
-//                    gameService.updateGame(new UpdateGameRequest("234", ChessGame.TeamColor.WHITE,234));
-//                }
-//        );
-//    }
+    @Test
+    public void goodListGames() {
+        var authData = facade.register(new RegisterRequest("username1234", "password", "p1@email.com"));
+        Collection<GameData> array = new ArrayList<>();
+        facade.createGame(new CreateGameRequest(authData.authToken(), "game2345"));
+        facade.createGame(new CreateGameRequest(authData.authToken(), "spiel21"));
+
+        Assertions.assertTrue(() -> {
+            try {
+                ListGamesResult result = facade.listGames(authData.authToken());
+                boolean found1 = false;
+                boolean found2 = false;
+                for (ListGameResultSingle game : result.games()) {
+                    if (game.gameName().equals("game2345")) {
+                        found1 = true;
+                    }
+                    if (game.gameName().equals("spiel21")) {
+                        found2 = true;
+                    }
+                }
+                return found1 && found2;
+            } catch (Exception e) {
+                return false;
+            }
+
+
+        });
+
+    }
+
+    @Test
+    public void badListGames() {
+        Assertions.assertThrows(ResponseException.class, () -> facade.listGames("234"));
+
+    }
+
+    @Test
+    public void goodCreateGame() {
+        var authData = facade.register(new RegisterRequest("username1234", "password", "p1@email.com"));
+        Assertions.assertTrue(() -> {
+            try {
+                CreateGameResult result = facade.createGame(new CreateGameRequest(authData.authToken(), "game234"));
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+    }
+
+    @Test
+    public void badCreateGame() {
+        Assertions.assertThrows(ResponseException.class, () -> facade.createGame(new CreateGameRequest("234", "test_game")));
+    }
+
+    @Test
+    public void goodJoinGame() {
+        var authData = facade.register(new RegisterRequest("username1234", "password", "p1@email.com"));
+        Assertions.assertTrue(() -> {
+            try {
+                CreateGameResult result = facade.createGame(new CreateGameRequest(authData.authToken(), "game234"));
+                facade.joinGame(new UpdateGameRequest(authData.authToken(), ChessGame.TeamColor.WHITE, result.gameID()));
+                return true;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return false;
+            }
+
+
+        });
+    }
+
+    @Test
+    public void badJoinGame() {
+        Assertions.assertThrows(ResponseException.class, () -> {
+                    facade.joinGame(new UpdateGameRequest("234", ChessGame.TeamColor.WHITE,234));
+                }
+        );
+    }
 }

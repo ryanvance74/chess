@@ -1,4 +1,4 @@
-import ui.UniversalRepl;
+import ui.PreGameRepl;
 
 public class ClientMain {
     public static void main(String[] args) {
@@ -7,7 +7,7 @@ public class ClientMain {
             serverUrl = args[0];
         }
 
-        new UniversalRepl(serverUrl).run();
+        new PreGameRepl(serverUrl).run();
     }
 
 }
