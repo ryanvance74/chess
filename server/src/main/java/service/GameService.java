@@ -26,9 +26,9 @@ public class GameService {
         } else {
             try {
                 Collection<GameData> games = gameDao.listGames();
-                Collection<ListGameResultSingle> listGameResultSingles = new ArrayList<>();
+                Collection<GameResultSingle> listGameResultSingles = new ArrayList<>();
                 for (GameData game : games) {
-                    listGameResultSingles.add(new ListGameResultSingle(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
+                    listGameResultSingles.add(new GameResultSingle(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
                 }
                 return new ListGamesResult(listGameResultSingles);
             } catch (Exception e) {

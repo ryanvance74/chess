@@ -52,7 +52,7 @@ public class ServerFacade {
         this.makeRequest("PUT", "/game", req, CreateGameResult.class, map);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, Map<String, String> headers) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object req, Class<T> tClass, Map<String, String> headers) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
 
@@ -64,11 +64,11 @@ public class ServerFacade {
                 addHeaders(http, headers);
             }
 
-            writeBody(request, http);
+            writeBody(req, http);
             http.connect();
             throwIfNotSuccessful(http);
-            if (responseClass == Void.class) return null;
-            return readBody(http, responseClass);
+            if (tClass == Void.class) {return null;}
+            return readBody(http, tClass);
         } catch (ResponseException e) {
             throw e;
         } catch (Exception e) {
@@ -97,15 +97,13 @@ public class ServerFacade {
         if (!isSuccessful(status)) {
             try (InputStream respErr = http.getErrorStream()) {
                 if (respErr != null) {
-                    try (BufferedReader br = new BufferedReader(new InputStreamReader(respErr))) {
-                        StringBuilder sb = new StringBuilder();
-                        String line;
-                        while ((line = br.readLine()) != null) {
-                            sb.append(line);
-                        }
-                        throw new ResponseException(status, sb.toString());
+                    BufferedReader br = new BufferedReader(new InputStreamReader(respErr));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
                     }
-//                    throw new facade.ResponseException(500, respErr.toString());
+                    throw new ResponseException(status, sb.toString());
                 }
 
             }

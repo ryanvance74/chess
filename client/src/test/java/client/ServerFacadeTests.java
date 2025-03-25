@@ -23,11 +23,7 @@ public class ServerFacadeTests {
         System.out.println("Started test HTTP server on " + port);
         facade = new ServerFacade("http://localhost:" + port);
     }
-//    public static void init() {
-//        server = new Server();
-//        var port = server.run(0);
-//        System.out.println("Started test HTTP server on " + port);
-//    }
+
     @AfterEach
     void clearDb() {
         facade.clear();
@@ -120,7 +116,7 @@ public class ServerFacadeTests {
                 ListGamesResult result = facade.listGames(authData.authToken());
                 boolean found1 = false;
                 boolean found2 = false;
-                for (ListGameResultSingle game : result.games()) {
+                for (GameResultSingle game : result.games()) {
                     if (game.gameName().equals("game2345")) {
                         found1 = true;
                     }

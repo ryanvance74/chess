@@ -128,7 +128,7 @@ public class InternalUnitTests {
                 ListGamesResult result = gameService.listGames(auth.authToken());
                 boolean found1 = false;
                 boolean found2 = false;
-                for (ListGameResultSingle game : result.games()) {
+                for (GameResultSingle game : result.games()) {
                     if (game.gameName().equals("game2435")) {
                         found1 = true;
                     }

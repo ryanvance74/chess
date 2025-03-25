@@ -2,4 +2,4 @@ package requests;
 
 import java.util.Collection;
 
-public record ListGamesResult(Collection<ListGameResultSingle> games) {}
+public record ListGamesResult(Collection<GameResultSingle> games) {}

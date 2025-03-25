@@ -20,7 +20,7 @@ public class GameClient {
     private boolean signedIn;
     private String currentAuthToken;
     private final ServerFacade serverFacade;
-    private final HashMap<Integer, ListGameResultSingle> gameCodeMap;
+    private final HashMap<Integer, GameResultSingle> gameCodeMap;
 
     private final HashMap<Integer, String> colLabelMap;
     public GameClient(String serverUrl) {
@@ -89,7 +89,7 @@ public class GameClient {
 
     public String createGame(String... params) throws ResponseException {
         if (params.length >= 1) {
-            if (!this.signedIn) throw new ResponseException(400, "Not logged in yet.");
+            if (!this.signedIn) {throw new ResponseException(400, "Not logged in yet.");}
             CreateGameRequest req = new CreateGameRequest(this.currentAuthToken, params[0]);
             serverFacade.createGame(req);
             return String.format("Created game: %s.", params[0]);
@@ -98,13 +98,13 @@ public class GameClient {
     }
 
     public String listGames() throws ResponseException {
-        if (!this.signedIn) throw new ResponseException(400, "Not logged in yet.");
+        if (!this.signedIn) {throw new ResponseException(400, "Not logged in yet.");}
         ListGamesResult result = serverFacade.listGames(this.currentAuthToken);
         StringBuilder sb = new StringBuilder();
         int gameCounter = 1;
         this.gameCodeMap.clear();
         sb.append("ID | NAME | WHITE | BLACK\n");
-        for (ListGameResultSingle game : result.games()) {
+        for (GameResultSingle game : result.games()) {
             this.gameCodeMap.put(gameCounter, game);
             sb.append(gameCounter);
             sb.append(" ");
@@ -122,7 +122,7 @@ public class GameClient {
 
     public String joinGame(String... params) throws ResponseException {
         if (params.length >= 1 && (params[1].equalsIgnoreCase("white") || params[1].equalsIgnoreCase("black"))) {
-            if (!this.signedIn) throw new ResponseException(400, "Not logged in yet.");
+            if (!this.signedIn) {throw new ResponseException(400, "Not logged in yet.");}
             chess.ChessGame.TeamColor color = params[1].equalsIgnoreCase("WHITE") ? WHITE : BLACK;
             int gameId = this.gameCodeMap.get(Integer.parseInt(params[0])).gameID();
             UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, color, gameId);
@@ -138,7 +138,7 @@ public class GameClient {
     }
 
     public String observeGame(String... params) throws ResponseException {
-        ListGameResultSingle gameObj = this.gameCodeMap.get(Integer.parseInt(params[0]));
+        GameResultSingle gameObj = this.gameCodeMap.get(Integer.parseInt(params[0]));
         return drawBoard(gameObj.game(), WHITE);
     }
     public String help() {
