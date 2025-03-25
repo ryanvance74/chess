@@ -39,9 +39,10 @@ public class GameClient {
     }
 
     public String eval(String input) {
+        String cmd = "";
         try {
             var tokens = input.toLowerCase().split(" ");
-            var cmd = (tokens.length > 0) ? tokens[0] : "help";
+            cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "register" -> register(params);
@@ -55,14 +56,42 @@ public class GameClient {
                 case "logout" -> logout();
                 default -> help();
             };
-        } catch (ResponseException ex) {
-            try {
-                JsonObject obj = new Gson().fromJson(ex.getMessage(), JsonObject.class);
-                return obj.get("message").getAsString();
-            } catch (JsonSyntaxException e) {
-                return ex.getMessage();
+        } catch (NullPointerException e) {
+            if (cmd.equals("join")) {
+                return """
+                    Either you game number was invalid or you did not supply all of the necessary fields.
+                    Use the help command to see which fields are required for this command.""";
+            } else {
+                return """
+                    You did not put in all the necessary information.
+                    Use the help command to see which fields are required for this command.""";
             }
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            if (cmd.equals("register") || cmd.equals("login")) {
+                return "Your register or login request did not have all of the required fields. Run help for more information.";
+            } else {
+                return """
+                        Your join, observe, or create request either did not have
+                         all of the required fields, or you tried to find a game with an invalid number.
+                         Please run help for more information.""";
+            }
+        } catch (Exception e) {
+            if (cmd.equals("login")) {
+                return """
+                Something about your request was incorrect.
+                You likely are trying to login as someone who has not yet registered.""";
+            }
+            return "Something about your request was incorrect. Please run the help command for more information.";
         }
+//        } (ResponseException ex) {
+//            try {
+//                JsonObject obj = new Gson().fromJson(ex.getMessage(), JsonObject.class);
+//                return obj.get("message").getAsString();
+//            } catch (JsonSyntaxException e) {
+//                return ex.getMessage();
+//            }
+//        }
     }
 
     public String register(String... params) throws ResponseException {
@@ -110,9 +139,17 @@ public class GameClient {
             sb.append(" ");
             sb.append(game.gameName());
             sb.append(" ");
-            sb.append(game.whiteUsername());
+            if (game.whiteUsername() == null) {
+                sb.append("available");
+            } else {
+                sb.append(game.whiteUsername());
+            }
             sb.append(" ");
-            sb.append(game.blackUsername());
+            if (game.blackUsername() == null) {
+                sb.append("available");
+            } else {
+                sb.append(game.blackUsername());
+            }
             sb.append("\n");
             gameCounter++;
         }
@@ -123,16 +160,17 @@ public class GameClient {
     public String joinGame(String... params) throws ResponseException {
         if (params.length >= 1 && (params[1].equalsIgnoreCase("white") || params[1].equalsIgnoreCase("black"))) {
             if (!this.signedIn) {throw new ResponseException(400, "Not logged in yet.");}
-            chess.ChessGame.TeamColor color = params[1].equalsIgnoreCase("WHITE") ? WHITE : BLACK;
+            ChessGame.TeamColor color = params[1].equalsIgnoreCase("WHITE") ? WHITE : BLACK;
             int gameId = this.gameCodeMap.get(Integer.parseInt(params[0])).gameID();
             UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, color, gameId);
             serverFacade.joinGame(req);
-            return String.format("Joined game: %s", params[0]);
+            return String.format("Joined game: %s\n", params[0]) + drawBoard(new ChessGame(), color);
         }
         throw new ResponseException(400, "Error. Expected: <ID> [WHITE|BLACK]");
     }
 
     public String logout() throws ResponseException {
+        this.signedIn = false;
         serverFacade.logout(new LogoutRequest(this.currentAuthToken));
         return "Successfully logged out.";
     }
@@ -144,29 +182,29 @@ public class GameClient {
     public String help() {
         StringBuilder sb = new StringBuilder();
         if (this.signedIn) {
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "create <NAME>");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - a game\n");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "list");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - games\n");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "join <ID> [WHITE|BLACK]");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - a game\n");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "observe <ID>");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - a game\n");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "logout");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - a user\n");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "quit");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - the application\n");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "help");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - with commands\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "create <NAME>");
+            sb.append(SET_TEXT_COLOR_WHITE + " - a game\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "list");
+            sb.append(SET_TEXT_COLOR_WHITE + " - games\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "join <ID> [WHITE|BLACK]");
+            sb.append(SET_TEXT_COLOR_WHITE + " - a game\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "observe <ID>");
+            sb.append(SET_TEXT_COLOR_WHITE + " - a game\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "logout");
+            sb.append(SET_TEXT_COLOR_WHITE + " - a user\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "quit");
+            sb.append(SET_TEXT_COLOR_WHITE + " - the application\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "help");
+            sb.append(SET_TEXT_COLOR_WHITE + " - with commands\n");
         } else {
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "register <USERNAME> <PASSWORD> <EMAIL>");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - to create an account\n");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "login <USERNAME> <PASSWORD>");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - to play chess\n");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "quit");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - the application\n");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_BLUE + "help");
-            sb.append(EscapeSequences.SET_TEXT_COLOR_WHITE + " - with commands\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "register <USERNAME> <PASSWORD> <EMAIL>");
+            sb.append(SET_TEXT_COLOR_WHITE + " - to create an account\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "login <USERNAME> <PASSWORD>");
+            sb.append(SET_TEXT_COLOR_WHITE + " - to play chess\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "quit");
+            sb.append(SET_TEXT_COLOR_WHITE + " - the application\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "help");
+            sb.append(SET_TEXT_COLOR_WHITE + " - with commands\n");
         }
         return sb.toString();
     }
@@ -174,39 +212,50 @@ public class GameClient {
     public String drawBoard(ChessGame game, ChessGame.TeamColor orientationTeamColor) {
         StringBuilder sb = new StringBuilder();
         ChessBoard board = game.getBoard();
-        drawHeader(sb);
+        drawHeader(sb, orientationTeamColor);
         if (orientationTeamColor == BLACK) {
             for (int row=1; row < 9; row++) {
-                sb.append(SET_TEXT_BOLD + this.colLabelMap.get(row));
-                for (int col=1; col < 9; col++) {
-                    drawBoardHelper(sb, board, row, col);
+                sb.append(SET_TEXT_BOLD + row  + " \u2009");
+                for (int col=8; col > 0; col--) {
+                    drawBoardHelper(sb, board, row, col, BLACK);
                 }
+                sb.append(RESET_BG_COLOR);
+                sb.append(" \u2009" + SET_TEXT_BOLD + row);
                 sb.append("\n");
             }
 
         } else {
             for (int row=8; row > 0; row--) {
-                sb.append(SET_TEXT_BOLD + this.colLabelMap.get(row) + " \u2009");
+                sb.append(SET_TEXT_BOLD + row + " \u2009");
                 for (int col=1; col < 9; col++) {
-                    drawBoardHelper(sb, board, row, col);
+                    drawBoardHelper(sb, board, row, col, WHITE);
                 }
                 sb.append(RESET_BG_COLOR);
-                sb.append(" \u2009" + SET_TEXT_BOLD + this.colLabelMap.get(row));
+                sb.append(" \u2009" + SET_TEXT_BOLD + row);
                 sb.append("\n");
             }
 
         }
-        drawHeader(sb);
+        drawHeader(sb, orientationTeamColor);
         return sb.toString();
     }
 
-    private void drawBoardHelper(StringBuilder sb, ChessBoard board, int row, int col) {
+    private void drawBoardHelper(StringBuilder sb, ChessBoard board, int row, int col, ChessGame.TeamColor color) {
         String tileColor;
-        if (col % 2 == 1) {
-            tileColor = row % 2 == 1 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+        if (color == WHITE) {
+            if (col % 2 == 1) {
+                tileColor = row % 2 == 1 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+            } else {
+                tileColor = row % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+            }
         } else {
-            tileColor = row % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+            if (col % 2 == 1) {
+                tileColor = row % 2 == 1 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+            } else {
+                tileColor = row % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+            }
         }
+
 
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
         if (piece == null) {
@@ -220,58 +269,71 @@ public class GameClient {
         switch (pieceType) {
             case KING -> {
                 if (pieceColor == WHITE) {
-                    sb.append(EscapeSequences.WHITE_KING);
+                    sb.append(WHITE_KING);
                 } else {
-                    sb.append(EscapeSequences.BLACK_KING);
+                    sb.append(BLACK_KING);
                 }
             }
             case QUEEN -> {
                 if (pieceColor == WHITE) {
-                    sb.append(EscapeSequences.WHITE_QUEEN);
+                    sb.append(WHITE_QUEEN);
                 } else {
-                    sb.append(EscapeSequences.BLACK_QUEEN);
+                    sb.append(BLACK_QUEEN);
                 }
             }
             case BISHOP -> {
                 if (pieceColor == WHITE) {
-                    sb.append(EscapeSequences.WHITE_BISHOP);
+                    sb.append(WHITE_BISHOP);
                 } else {
-                    sb.append(EscapeSequences.BLACK_BISHOP);
+                    sb.append(BLACK_BISHOP);
                 }
             }
             case KNIGHT -> {
                 if (pieceColor == WHITE) {
-                    sb.append(EscapeSequences.WHITE_KNIGHT);
+                    sb.append(WHITE_KNIGHT);
                 } else {
-                    sb.append(EscapeSequences.BLACK_KNIGHT);
+                    sb.append(BLACK_KNIGHT);
                 }
             }
             case ROOK -> {
                 if (pieceColor == WHITE) {
-                    sb.append(EscapeSequences.WHITE_ROOK);
+                    sb.append(WHITE_ROOK);
                 } else {
-                    sb.append(EscapeSequences.BLACK_ROOK);
+                    sb.append(BLACK_ROOK);
                 }
             }
             case PAWN -> {
                 if (pieceColor == WHITE) {
-                    sb.append(EscapeSequences.WHITE_PAWN);
+                    sb.append(WHITE_PAWN);
                 } else {
-                    sb.append(EscapeSequences.BLACK_PAWN);
+                    sb.append(BLACK_PAWN);
                 }
             }
         }
     }
 
-    private void drawHeader(StringBuilder sb) {
-        sb.append(" \u2009");
-        sb.append(" \u2003" + SET_TEXT_BOLD + "1");
-        sb.append(" \u2003" + "2");
-        sb.append(" \u2003" + "3");
-        sb.append(" \u2003" + "4");
-        sb.append(" \u2003" + "5");
-        sb.append(" \u2003" + "6");
-        sb.append(" \u2003" + "7");
-        sb.append(" \u2003" + "8\n");
+    private void drawHeader(StringBuilder sb, ChessGame.TeamColor color) {
+        if (color == WHITE) {
+            sb.append(" \u2009");
+            sb.append(" \u2003" + SET_TEXT_BOLD + "a");
+            sb.append(" \u2003" + "b");
+            sb.append(" \u2003" + "c");
+            sb.append(" \u2003" + "d");
+            sb.append(" \u2003" + "e");
+            sb.append(" \u2003" + "f");
+            sb.append(" \u2003" + "g");
+            sb.append(" \u2003" + "h\n");
+        } else {
+            sb.append(" \u2009");
+            sb.append(" \u2003" + SET_TEXT_BOLD + "h");
+            sb.append(" \u2003" + "g");
+            sb.append(" \u2003" + "f");
+            sb.append(" \u2003" + "e");
+            sb.append(" \u2003" + "d");
+            sb.append(" \u2003" + "c");
+            sb.append(" \u2003" + "b");
+            sb.append(" \u2003" + "a\n");
+        }
+
     }
 }
