@@ -58,10 +58,13 @@ public class ServerFacadeTests {
 
     @Test
     public void goodLogin() {
-        Assertions.assertDoesNotThrow(() -> facade.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
-        Assertions.assertDoesNotThrow(() -> facade.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
-        Assertions.assertDoesNotThrow(() -> facade.login(new LoginRequest("myUsername1234", "myPassword5678")));
-        Assertions.assertDoesNotThrow(() -> facade.login(new LoginRequest("testUser_jdk", "epic_password_529")));
+        Assertions.assertDoesNotThrow(() -> facade.register(new RegisterRequest("testing_user", "bad_password", "my_email")));
+
+        Assertions.assertDoesNotThrow(() -> facade.register(new RegisterRequest("my_user", "good_password", "your_email")));
+
+        Assertions.assertDoesNotThrow(() -> facade.login(new LoginRequest("my_user", "good_password")));
+
+        Assertions.assertDoesNotThrow(() -> facade.login(new LoginRequest("testing_user", "bad_password")));
 
     }
 
@@ -76,12 +79,12 @@ public class ServerFacadeTests {
 
     @Test
     public void goodLogout() {
-        Assertions.assertDoesNotThrow(() -> facade.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
-        Assertions.assertDoesNotThrow(() -> facade.register(new RegisterRequest("myUsername12345", "myPassword5678", "test@email.byu.edu")));
-        Assertions.assertDoesNotThrow(() -> facade.login(new LoginRequest("myUsername12345", "myPassword5678")));
+        Assertions.assertDoesNotThrow(() -> facade.register(new RegisterRequest("myUsername1234", "good_password", "my_email@nano.edu")));
+        Assertions.assertDoesNotThrow(() -> facade.register(new RegisterRequest("myUsername12345", "bad_password", "your_email@email.byu.edu")));
+        Assertions.assertDoesNotThrow(() -> facade.login(new LoginRequest("myUsername12345", "bad_password")));
 
         Assertions.assertDoesNotThrow(() -> {
-                    LoginResult j = facade.login(new LoginRequest("testUser_jdk", "epic_password_529"));
+                    LoginResult j = facade.login(new LoginRequest("myUsername1234", "good_password"));
             facade.logout(new LogoutRequest(j.authToken()));
                 }
 

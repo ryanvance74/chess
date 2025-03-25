@@ -26,11 +26,11 @@ public class GameService {
         } else {
             try {
                 Collection<GameData> games = gameDao.listGames();
-                Collection<GameResultSingle> listGameResultSingles = new ArrayList<>();
+                Collection<GameResultSingle> lsGameResults = new ArrayList<>();
                 for (GameData game : games) {
-                    listGameResultSingles.add(new GameResultSingle(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
+                    lsGameResults.add(new GameResultSingle(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
                 }
-                return new ListGamesResult(listGameResultSingles);
+                return new ListGamesResult(lsGameResults);
             } catch (Exception e) {
                 throw new ServerErrorException(e.getMessage());
             }
