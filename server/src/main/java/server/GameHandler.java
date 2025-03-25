@@ -5,6 +5,7 @@ import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.DuplicateUserException;
 import dataaccess.exceptions.ServerErrorException;
 import dataaccess.exceptions.UnauthorizedRequestException;
+import requests.*;
 import service.*;
 import spark.Request;
 import spark.Response;

@@ -8,6 +8,7 @@ import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Assertions;
+import requests.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

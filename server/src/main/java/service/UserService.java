@@ -3,6 +3,7 @@ import dataaccess.*;
 import dataaccess.exceptions.*;
 import model.UserData;
 import model.AuthData;
+import requests.*;
 
 public class UserService {
     UserDAO userDao;

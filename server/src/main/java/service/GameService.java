@@ -6,6 +6,7 @@ import dataaccess.exceptions.ServerErrorException;
 import dataaccess.exceptions.UnauthorizedRequestException;
 import model.AuthData;
 import model.GameData;
+import requests.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

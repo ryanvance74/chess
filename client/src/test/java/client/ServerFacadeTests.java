@@ -3,10 +3,10 @@ package client;
 import chess.ChessGame;
 import model.GameData;
 import org.junit.jupiter.api.*;
-import server.ResponseException;
+import requests.*;
 import server.Server;
-import ServerFacade;
-import service.*;
+import facade.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 

@@ -1,9 +1,12 @@
+package facade;
+
 import java.net.*;
 import java.io.*;
 import com.google.gson.Gson;
-
+import requests.*;
 import java.util.HashMap;
 import java.util.Map;
+import facade.*;
 
 public class ServerFacade {
     private final String serverUrl;
@@ -102,7 +105,7 @@ public class ServerFacade {
                         }
                         throw new ResponseException(status, sb.toString());
                     }
-//                    throw new ResponseException(500, respErr.toString());
+//                    throw new facade.ResponseException(500, respErr.toString());
                 }
 
             }

@@ -4,9 +4,8 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.*;
-import server.ResponseException;
-import ServerFacade;
-import service.*;
+import facade.*;
+import requests.*;
 import ui.EscapeSequences;
 
 import java.lang.StringBuilder;
