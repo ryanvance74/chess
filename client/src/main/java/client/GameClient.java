@@ -176,7 +176,7 @@ public class GameClient {
     public String drawBoard(ChessGame game, ChessGame.TeamColor orientationTeamColor) {
         StringBuilder sb = new StringBuilder();
         ChessBoard board = game.getBoard();
-        sb.append(SET_TEXT_BOLD + "1 2 3 4 5 6 7 8");
+        drawHeader(sb);
         if (orientationTeamColor == BLACK) {
             for (int row=1; row < 9; row++) {
                 sb.append(SET_TEXT_BOLD + this.COL_LABEL_MAP.get(row));
@@ -185,29 +185,37 @@ public class GameClient {
                 }
                 sb.append("\n");
             }
-            sb.append(SET_TEXT_BOLD + "1 2 3 4 5 6 7 8");
+
         } else {
             for (int row=8; row > 0; row--) {
-                sb.append(SET_TEXT_BOLD + this.COL_LABEL_MAP.get(row));
+                sb.append(SET_TEXT_BOLD + this.COL_LABEL_MAP.get(row) + " \u2009");
                 for (int col=1; col < 9; col++) {
                     drawBoardHelper(sb, board, row, col);
                 }
+                sb.append(RESET_BG_COLOR);
+                sb.append(" \u2009" + SET_TEXT_BOLD + this.COL_LABEL_MAP.get(row));
                 sb.append("\n");
             }
-            sb.append(SET_TEXT_BOLD + "1 2 3 4 5 6 7 8");
+
         }
+        drawHeader(sb);
         return sb.toString();
     }
 
     private void drawBoardHelper(StringBuilder sb, ChessBoard board, int row, int col) {
         String tileColor;
         if (col % 2 == 1) {
-            tileColor = row % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
-        } else {
             tileColor = row % 2 == 1 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+        } else {
+            tileColor = row % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
         }
 
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+        if (piece == null) {
+            sb.append(tileColor + EMPTY);
+            return;
+        }
+
         ChessPiece.PieceType pieceType = piece.getPieceType();
         ChessGame.TeamColor pieceColor = piece.getTeamColor();
         sb.append(tileColor);
@@ -255,5 +263,17 @@ public class GameClient {
                 }
             }
         }
+    }
+
+    private void drawHeader(StringBuilder sb) {
+        sb.append(" \u2009");
+        sb.append(" \u2003" + SET_TEXT_BOLD + "1");
+        sb.append(" \u2003" + "2");
+        sb.append(" \u2003" + "3");
+        sb.append(" \u2003" + "4");
+        sb.append(" \u2003" + "5");
+        sb.append(" \u2003" + "6");
+        sb.append(" \u2003" + "7");
+        sb.append(" \u2003" + "8\n");
     }
 }
