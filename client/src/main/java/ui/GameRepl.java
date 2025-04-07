@@ -1,15 +1,16 @@
 package ui;
 import client.GameClient;
-
 import java.util.Scanner;
 
-public class PreGameRepl {
+public class GameRepl {
     private final GameClient client;
 
-    public PreGameRepl(GameClient client) {this.client = client;}
+    public GameRepl(GameClient client) {
+        this.client = client;
+    }
 
     public String run() {
-        System.out.println("\uD83D\uDC36 Welcome to Chess. Sign in to start.");
+        System.out.println("\uD83D\uDC36 You have entered a game.");
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -22,7 +23,7 @@ public class PreGameRepl {
                 result = client.eval(line);
                 System.out.print(result);
                 if (result.switchRepl()) {
-                    return "inGame";
+                    return "preGame";
                 }
             } catch (Throwable e) {
 

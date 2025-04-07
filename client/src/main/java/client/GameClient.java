@@ -6,6 +6,7 @@ import chess.ChessPosition;
 import com.google.gson.*;
 import facade.*;
 import requests.*;
+import ui.ClientResult;
 import ui.EscapeSequences;
 
 import java.lang.StringBuilder;
@@ -18,6 +19,7 @@ import static ui.EscapeSequences.*;
 
 public class GameClient {
     private boolean signedIn;
+    private boolean inGame;
     private String currentAuthToken;
     private final ServerFacade serverFacade;
     private final HashMap<Integer, GameResultSingle> gameCodeMap;
@@ -26,6 +28,7 @@ public class GameClient {
     public GameClient(String serverUrl) {
         this.serverFacade = new ServerFacade(serverUrl);
         this.signedIn = false;
+        this.inGame = false;
         this.gameCodeMap = new HashMap<>();
         this.colLabelMap = new HashMap<>();
         this.colLabelMap.put(1,"a");
@@ -38,7 +41,7 @@ public class GameClient {
         this.colLabelMap.put(8,"h");
     }
 
-    public String eval(String input) {
+    public ClientResult eval(String input) {
         String cmd = "";
         try {
             var tokens = input.toLowerCase().split(" ");
@@ -47,8 +50,7 @@ public class GameClient {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "login" -> login(params);
-                case "quit" -> "quit";
-                case "help" -> help();
+                case "quit" -> new ClientResult("quit",false);
                 case "create" -> createGame(params);
                 case "list" -> listGames();
                 case "join" -> joinGame(params);
@@ -58,31 +60,31 @@ public class GameClient {
             };
         } catch (NullPointerException e) {
             if (cmd.equals("join")) {
-                return """
+                return new ClientResult("""
                     Either you game number was invalid or you did not supply all of the necessary fields.
-                    Use the help command to see which fields are required for this command.""";
+                    Use the help command to see which fields are required for this command.""",false);
             } else {
-                return """
+                return new ClientResult("""
                     You did not put in all the necessary information.
-                    Use the help command to see which fields are required for this command.""";
+                    Use the help command to see which fields are required for this command.""",false);
             }
 
         } catch (ArrayIndexOutOfBoundsException e) {
             if (cmd.equals("register") || cmd.equals("login")) {
-                return "Your register or login request did not have all of the required fields. Run help for more information.";
+                return new ClientResult("Your register or login request did not have all of the required fields. Run help for more information.",false);
             } else {
-                return """
+                return new ClientResult("""
                         Your join, observe, or create request either did not have
                          all of the required fields, or you tried to find a game with an invalid number.
-                         Please run help for more information.""";
+                         Please run help for more information.""",false);
             }
         } catch (Exception e) {
             if (cmd.equals("login")) {
-                return """
+                return new ClientResult("""
                 Something about your request was incorrect.
-                You likely are trying to login as someone who has not yet registered.""";
+                You likely are trying to login as someone who has not yet registered.""", false);
             }
-            return "Something about your request was incorrect. Please run the help command for more information.";
+            return new ClientResult("Something about your request was incorrect. Please run the help command for more information.",false);
         }
 //        } (ResponseException ex) {
 //            try {
@@ -94,39 +96,39 @@ public class GameClient {
 //        }
     }
 
-    public String register(String... params) throws ResponseException {
+    public ClientResult register(String... params) throws ResponseException {
         if (params.length >= 1) {
             this.signedIn = true;
             RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult result = serverFacade.register(req);
             this.currentAuthToken = result.authToken();
-            return String.format("Registered and logged in as %s.", params[0]);
+            return new ClientResult(String.format("Registered and logged in as %s.", params[0]),false);
         }
         throw new ResponseException(400, "Expected: <NAME> <PASSWORD> <EMAIL>");
     }
 
-    public String login(String... params) throws ResponseException {
+    public ClientResult login(String... params) throws ResponseException {
         if (params.length >= 1) {
             this.signedIn = true;
             LoginRequest req = new LoginRequest(params[0], params[1]);
             LoginResult result = serverFacade.login(req);
             this.currentAuthToken = result.authToken();
-            return String.format("Logged in as %s.", params[0]);
+            return new ClientResult(String.format("Logged in as %s.", params[0]),false);
         }
         throw new ResponseException(400, "Expected: <NAME> <PASSWORD>");
     }
 
-    public String createGame(String... params) throws ResponseException {
+    public ClientResult createGame(String... params) throws ResponseException {
         if (params.length >= 1) {
             if (!this.signedIn) {throw new ResponseException(400, "Not logged in yet.");}
             CreateGameRequest req = new CreateGameRequest(this.currentAuthToken, params[0]);
             serverFacade.createGame(req);
-            return String.format("Created game: %s.", params[0]);
+            return new ClientResult(String.format("Created game: %s.", params[0]),false);
         }
         throw new ResponseException(400, "Expected: <NAME>");
     }
 
-    public String listGames() throws ResponseException {
+    public ClientResult listGames() throws ResponseException {
         if (!this.signedIn) {throw new ResponseException(400, "Not logged in yet.");}
         ListGamesResult result = serverFacade.listGames(this.currentAuthToken);
         StringBuilder sb = new StringBuilder();
@@ -154,34 +156,48 @@ public class GameClient {
             gameCounter++;
         }
 
-        return sb.toString();
+        return new ClientResult(sb.toString(),false);
     }
 
-    public String joinGame(String... params) throws ResponseException {
+    public ClientResult joinGame(String... params) throws ResponseException {
         if (params.length >= 1 && (params[1].equalsIgnoreCase("white") || params[1].equalsIgnoreCase("black"))) {
             if (!this.signedIn) {throw new ResponseException(400, "Not logged in yet.");}
             ChessGame.TeamColor color = params[1].equalsIgnoreCase("WHITE") ? WHITE : BLACK;
             int gameId = this.gameCodeMap.get(Integer.parseInt(params[0])).gameID();
             UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, color, gameId);
             serverFacade.joinGame(req);
-            return String.format("Joined game: %s\n", params[0]) + drawBoard(new ChessGame(), color);
+            this.inGame = true;
+            return new ClientResult(String.format("Joined game: %s\n", params[0]) + drawBoard(new ChessGame(), color),true);
         }
         throw new ResponseException(400, "Error. Expected: <ID> [WHITE|BLACK]");
     }
 
-    public String logout() throws ResponseException {
+    public ClientResult logout() throws ResponseException {
         this.signedIn = false;
         serverFacade.logout(new LogoutRequest(this.currentAuthToken));
-        return "Successfully logged out.";
+        return new ClientResult("Successfully logged out.",false);
     }
 
-    public String observeGame(String... params) throws ResponseException {
+    public ClientResult observeGame(String... params) throws ResponseException {
         GameResultSingle gameObj = this.gameCodeMap.get(Integer.parseInt(params[0]));
-        return drawBoard(gameObj.game(), WHITE);
+        return new ClientResult(drawBoard(gameObj.game(), WHITE),true);
     }
-    public String help() {
+    public ClientResult help() {
         StringBuilder sb = new StringBuilder();
-        if (this.signedIn) {
+        if (this.signedIn && this.inGame) {
+            sb.append(SET_TEXT_COLOR_BLUE + "redraw");
+            sb.append(SET_TEXT_COLOR_WHITE + " - the board\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "leave");
+            sb.append(SET_TEXT_COLOR_WHITE + " - the game\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "move");
+            sb.append(SET_TEXT_COLOR_WHITE + " - make a move in the chess game\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "resign");
+            sb.append(SET_TEXT_COLOR_WHITE + " - forfeit the game\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "highlight");
+            sb.append(SET_TEXT_COLOR_WHITE + " - legal moves that a certain piece can make in the game\n");
+            sb.append(SET_TEXT_COLOR_BLUE + "help");
+            sb.append(SET_TEXT_COLOR_WHITE + " - with commands\n");
+        } else if (this.signedIn) {
             sb.append(SET_TEXT_COLOR_BLUE + "create <NAME>");
             sb.append(SET_TEXT_COLOR_WHITE + " - a game\n");
             sb.append(SET_TEXT_COLOR_BLUE + "list");
@@ -206,7 +222,7 @@ public class GameClient {
             sb.append(SET_TEXT_COLOR_BLUE + "help");
             sb.append(SET_TEXT_COLOR_WHITE + " - with commands\n");
         }
-        return sb.toString();
+        return new ClientResult(sb.toString(),false);
     }
 
     public String drawBoard(ChessGame game, ChessGame.TeamColor orientationTeamColor) {
