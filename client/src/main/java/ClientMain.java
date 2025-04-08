@@ -1,6 +1,6 @@
 import client.GameClient;
-import ui.GameRepl;
-import ui.PreGameRepl;
+import ui.BadRepl;
+import ui.Repl;
 
 public class ClientMain {
     public static void main(String[] args) {
@@ -14,9 +14,9 @@ public class ClientMain {
         String nextRepl = "preGame";
         do {
             if (nextRepl.equals("preGame")) {
-                nextRepl = new PreGameRepl(client).run();
+                nextRepl = new Repl(client).run();
             } else {
-                nextRepl = new GameRepl(client).run();
+                nextRepl = new BadRepl(client).run();
             }
         } while (nextRepl.equals("preGame") || nextRepl.equals("inGame"));
 

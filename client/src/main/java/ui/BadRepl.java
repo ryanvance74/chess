@@ -3,17 +3,19 @@ import client.GameClient;
 
 import java.util.Scanner;
 
-public class PreGameRepl {
+public class BadRepl {
     private final GameClient client;
 
-    public PreGameRepl(GameClient client) {this.client = client;}
+    public BadRepl(GameClient client) {
+        this.client = client;
+    }
 
     public String run() {
-        System.out.println("\uD83D\uDC36 Welcome to Chess. Sign in to start.");
+        System.out.println("\uD83D\uDC36 You have entered a game.");
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
-        ClientResult result = new ClientResult("", false);
+        var result = "";
         while (!result.resultText().equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
@@ -22,7 +24,7 @@ public class PreGameRepl {
                 result = client.eval(line);
                 System.out.print(result);
                 if (result.switchRepl()) {
-                    return "inGame";
+                    return "preGame";
                 }
             } catch (Throwable e) {
 
@@ -33,6 +35,8 @@ public class PreGameRepl {
         System.out.println();
         return "";
     }
+
+
 
     private void printPrompt() {
         System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_GREEN + ">>> ");
