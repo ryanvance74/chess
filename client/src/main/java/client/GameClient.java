@@ -64,6 +64,7 @@ public class GameClient {
                 case "leave" -> leave(params);
                 case "move" -> move(params);
                 case "resign" -> resign(params);
+                case "highlight" -> highlightLegalMoves(params);
                 default -> help();
             };
         } catch (NullPointerException e) {
@@ -175,26 +176,27 @@ public class GameClient {
             return "You must specify the piece that you want to highlight.";
         }
 
-        ChessBoard board = this.gameCodeMap.get(gameNumber).game().getBoard();
+        ChessGame game = this.gameCodeMap.get(gameNumber).game();
+        ChessBoard board = game.getBoard();
         ChessPosition position = new ChessPosition(Character.toLowerCase(params[0].charAt(0))-'a'+1, params[0].charAt(1));
         ChessPiece piece = board.getPiece(position);
         Collection<ChessMove> moves = piece.pieceMoves(board, position);
 
         int[][] endPositions = new int[8][8];
+        endPositions[position.getRow()][position.getColumn()] = 2;
         for (ChessMove move : moves) {
-            // TODO have to fix the row-col order of the a-h 1-8 stuff
-            endPositions.add(move.getEndPosition());
+            ChessPosition endPosition = move.getEndPosition();
+            endPositions[endPosition.getRow()][endPosition.getColumn()] = 1;
         }
-
-
+        return drawBoard(game, this.color, endPositions);
     }
 
     private ChessMove parseMove(String... params) throws MoveParsingException {
         if (!params[0].matches("[a-h][1-8]") || !params[1].matches("[a-h][1-8]")) {
             return null;
         }
-        ChessPosition startPosition = new ChessPosition(Character.toLowerCase(params[0].charAt(0))-'a'+1, params[0].charAt(1));
-        ChessPosition endPosition = new ChessPosition(Character.toLowerCase(params[1].charAt(0))-'a'+1, params[1].charAt(1));
+        ChessPosition startPosition = new ChessPosition(params[0].charAt(1),Character.toLowerCase(params[0].charAt(0))-'a'+1);
+        ChessPosition endPosition = new ChessPosition(params[1].charAt(1),Character.toLowerCase(params[1].charAt(0))-'a'+1);
         if (params.length == 2) {
             return new ChessMove(startPosition, endPosition, null);
         } else {
@@ -357,7 +359,7 @@ public class GameClient {
             for (int row=1; row < 9; row++) {
                 sb.append(SET_TEXT_BOLD + row  + " \u2009");
                 for (int col=8; col > 0; col--) {
-                    drawBoardHelper(sb, board, row, col, BLACK);
+                    drawBoardHelper(sb, board, row, col, BLACK, highlightArr);
                 }
                 sb.append(RESET_BG_COLOR);
                 sb.append(" \u2009" + SET_TEXT_BOLD + row);
@@ -368,7 +370,7 @@ public class GameClient {
             for (int row=8; row > 0; row--) {
                 sb.append(SET_TEXT_BOLD + row + " \u2009");
                 for (int col=1; col < 9; col++) {
-                    drawBoardHelper(sb, board, row, col, WHITE);
+                    drawBoardHelper(sb, board, row, col, WHITE, highlightArr);
                 }
                 sb.append(RESET_BG_COLOR);
                 sb.append(" \u2009" + SET_TEXT_BOLD + row);
@@ -380,19 +382,27 @@ public class GameClient {
         return sb.toString();
     }
 
-    private void drawBoardHelper(StringBuilder sb, ChessBoard board, int row, int col, ChessGame.TeamColor color) {
+    private void drawBoardHelper(StringBuilder sb, ChessBoard board, int row, int col, ChessGame.TeamColor color, int[][] highlightArr) {
         String tileColor;
-        if (color == WHITE) {
-            if (col % 2 == 1) {
-                tileColor = row % 2 == 1 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+        if (highlightArr != null && highlightArr[row][col] != 0) {
+            if (highlightArr[row][col] == 1) {
+                tileColor = SET_BG_COLOR_GREEN;
             } else {
-                tileColor = row % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+                tileColor = SET_BG_COLOR_YELLOW;
             }
         } else {
-            if (col % 2 == 1) {
-                tileColor = row % 2 == 1 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+            if (color == WHITE) {
+                if (col % 2 == 1) {
+                    tileColor = row % 2 == 1 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+                } else {
+                    tileColor = row % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+                }
             } else {
-                tileColor = row % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+                if (col % 2 == 1) {
+                    tileColor = row % 2 == 1 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+                } else {
+                    tileColor = row % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+                }
             }
         }
 
