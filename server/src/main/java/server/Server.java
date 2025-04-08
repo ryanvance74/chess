@@ -41,10 +41,12 @@ public class Server {
             userService = new UserService(userDao, authDao);
             gameService = new GameService(gameDao, authDao);
 
-            UserHandler userHandler = new UserHandler(userDao, authDao);
-            GameHandler gameHandler = new GameHandler(gameDao, authDao);
+            UserHandler userHandler = new UserHandler(userService);
+            GameHandler gameHandler = new GameHandler(gameService);
             ClearHandler clearHandler = new ClearHandler(authDao, gameDao, userDao);
-            WebSocketHandler webSocketHandler = new WebSocketHandler()
+            WebSocketHandler webSocketHandler = new WebSocketHandler(userService, gameService);
+
+            // webSocketHandler
 
             // clearHandler
             Spark.delete("/db", clearHandler::delete);

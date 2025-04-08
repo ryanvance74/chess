@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dataaccess.exceptions.DataAccessException;
 import gsonextras.RuntimeTypeAdapterFactory;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -44,8 +45,10 @@ public class WebSocketHandler {
 
     private void connect(Session session, UserGameCommand command) throws IOException {
         String userName;
+        GameData gameData;
         try {
             userName = userService.getUserNameFromAuth(command.getAuthToken());
+            gameData = gameService.
         } catch (DataAccessException e) {
             throw new IOException(e.getMessage());
         }

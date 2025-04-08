@@ -23,7 +23,7 @@ public class ConnectionManager {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (!c.authToken.equals(excludeUserName)) {
+                if (!c.userName.equals(excludeUserName)) {
                     c.send(notification.toString());
                 }
             } else {
@@ -32,7 +32,7 @@ public class ConnectionManager {
         }
         // Clean up any connections that were left open.
         for (var c : removeList) {
-            connections.remove(c.authToken);
+            connections.remove(c.userName);
         }
     }
 }

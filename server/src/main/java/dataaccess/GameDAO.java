@@ -9,5 +9,4 @@ public interface GameDAO {
     Collection<GameData> listGames() throws DataAccessException;
     void updateGame(int gameId, String username, String playerColor) throws DataAccessException, DuplicateUserException;
     void clearData() throws DataAccessException;
-
 }

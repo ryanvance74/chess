@@ -5,11 +5,11 @@ import org.eclipse.jetty.websocket.api.Session;
 import java.io.IOException;
 
 public class Connection {
-    public String authToken;
+    public String userName;
     public Session session;
 
-    public Connection(String authToken, Session session) {
-        this.authToken = authToken;
+    public Connection(String userName, Session session) {
+        this.userName = userName;
         this.session = session;
     }
 

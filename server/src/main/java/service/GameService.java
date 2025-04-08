@@ -34,8 +34,27 @@ public class GameService {
             } catch (Exception e) {
                 throw new ServerErrorException(e.getMessage());
             }
-
         }
+    }
+
+    public GameData getGameFromId(String authToken, int gameId) throws DataAccessException, UnauthorizedRequestException {
+        AuthData authData = authDao.getAuth(authToken);
+        if (authData == null) {
+            throw new UnauthorizedRequestException("Error: unauthorized");
+        } else {
+            try {
+                Collection<GameData> games = gameDao.listGames();
+                Collection<GameResultSingle> lsGameResults = new ArrayList<>();
+                for (GameData game : games) {
+                    if (game.gameID() == gameId) {
+                        return game;
+                    }
+                }
+            } catch (Exception e) {
+                throw new ServerErrorException(e.getMessage());
+            }
+        }
+        return null;
     }
 
     public CreateGameResult createGame(CreateGameRequest request) throws DataAccessException, UnauthorizedRequestException {
