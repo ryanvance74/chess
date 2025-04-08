@@ -1,6 +1,7 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import dataaccess.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -19,8 +20,10 @@ public class WebsocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-        Action action = new Gson().fromJson(message, Action.class);
-        switch (action.type()) {
+        RuntimeTypeAdapterFactory<UserGameCommand> shapeAdapterFactory
+ *     = RuntimeTypeAdapterFactory.of(Shape.class, "type");
+        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+        switch (command.type()) {
             case ENTER -> enter(action.visitorName(), session);
             case EXIT -> exit(action.visitorName());
         }
