@@ -4,6 +4,7 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import org.eclipse.jetty.server.Response;
+import server.websocket.WebSocketHandler;
 import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
@@ -19,7 +20,7 @@ import java.util.Collection;
 //need to extend Endpoint for websocket to work properly
 public class WebSocketFacade extends Endpoint {
 
-    Session session;
+    private final Session session;
     NotificationHandler notificationHandler;
 
 

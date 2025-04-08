@@ -44,7 +44,6 @@ public class GameService {
         } else {
             try {
                 Collection<GameData> games = gameDao.listGames();
-                Collection<GameResultSingle> lsGameResults = new ArrayList<>();
                 for (GameData game : games) {
                     if (game.gameID() == gameId) {
                         return game;

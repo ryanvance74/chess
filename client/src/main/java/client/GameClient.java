@@ -258,9 +258,12 @@ public class GameClient {
         if (params.length >= 1) {
             if (!this.signedIn) {throw new ResponseException(400, "Not logged in yet.");}
             CreateGameRequest req = new CreateGameRequest(this.currentAuthToken, params[0]);
-            serverFacade.createGame(req);
+            CreateGameResult result = serverFacade.createGame(req);
+            UserGameCommand command = new UserGameCommand(CommandType.MAKE_GAME_MANAGER, this.currentAuthToken, result.gameID());
+            ws.sendCommand(command);
             return String.format("Created game: %s.", params[0]);
         }
+
         throw new ResponseException(400, "Expected: <NAME>");
     }
 
