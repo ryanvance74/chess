@@ -59,6 +59,10 @@ public class UserService {
         }
     }
 
+    public String getUserNameFromAuth(String authToken) throws DataAccessException {
+        return authDao.getAuth(authToken).username();
+    }
+
 //    boolean verifyUser(String hashedPassword, String providedClearTextPassword) {
 //        // read the previously hashed password from the database
 //        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);

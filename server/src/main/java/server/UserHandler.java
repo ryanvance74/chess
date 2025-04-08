@@ -13,13 +13,11 @@ import com.google.gson.Gson;
 import service.UserService;
 
 class UserHandler {
-    UserDAO userDao;
     Gson gson;
     UserService userService;
-    public UserHandler(UserDAO userDao, AuthDAO authDao) {
-        this.userDao = userDao;
+    public UserHandler(UserService userService) {
         this.gson = new Gson();
-        this.userService = new UserService(userDao, authDao);
+        this.userService = userService;
     }
 
     public Object registerUser(Request req, Response res) {

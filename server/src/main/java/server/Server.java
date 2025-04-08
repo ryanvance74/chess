@@ -2,6 +2,10 @@ package server;
 
 import dataaccess.*;
 import dataaccess.exceptions.DataAccessException;
+import server.websocket.WebSocketHandler;
+import service.ClearService;
+import service.GameService;
+import service.UserService;
 import spark.*;
 
 public class Server {
@@ -25,15 +29,22 @@ public class Server {
         AuthDAO authDao;
         UserDAO userDao;
         GameDAO gameDao;
+        UserService userService;
+        GameService gameService;
+
 
         try {
             authDao = new SQLAuthDAO();
             userDao = new SQLUserDAO();
             gameDao = new SQLGameDAO();
 
+            userService = new UserService(userDao, authDao);
+            gameService = new GameService(gameDao, authDao);
+
             UserHandler userHandler = new UserHandler(userDao, authDao);
             GameHandler gameHandler = new GameHandler(gameDao, authDao);
             ClearHandler clearHandler = new ClearHandler(authDao, gameDao, userDao);
+            WebSocketHandler webSocketHandler = new WebSocketHandler()
 
             // clearHandler
             Spark.delete("/db", clearHandler::delete);

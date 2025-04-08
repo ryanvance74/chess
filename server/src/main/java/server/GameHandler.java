@@ -13,13 +13,10 @@ import com.google.gson.Gson;
 
 class GameHandler {
     GameService gameService;
-    GameDAO gameDao;
-    AuthDAO authDao;
     Gson gson;
 
-    public GameHandler(GameDAO gameDao, AuthDAO authDao) {
-        this.gameService = new GameService(gameDao, authDao);
-        this.gameDao = gameDao;
+    public GameHandler(GameService gameService) {
+        this.gameService = gameService;
         this.gson = new Gson();
     }
 
