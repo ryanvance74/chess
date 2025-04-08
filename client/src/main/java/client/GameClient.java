@@ -1,12 +1,10 @@
 package client;
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import facade.*;
 import requests.*;
+import websocket.commands.MoveCommand;
 
 import java.lang.StringBuilder;
 import java.util.Arrays;
@@ -20,11 +18,14 @@ public class GameClient {
     private boolean signedIn;
     private boolean inGame;
     private String currentAuthToken;
+    private boolean mightResign;
     private final ServerFacade serverFacade;
     private final String serverUrl;
     private WebSocketFacade ws;
     private final HashMap<Integer, GameResultSingle> gameCodeMap;
+    private final HashMap<String, ChessPiece.PieceType> pieceTypeHashMap;
     private final NotificationHandler notificationHandler;
+    private ChessGame.TeamColor color;
 
     public GameClient(String serverUrl, NotificationHandler notificationHandler) {
         this.serverFacade = new ServerFacade(serverUrl);
@@ -33,6 +34,13 @@ public class GameClient {
         this.gameCodeMap = new HashMap<>();
         this.notificationHandler = notificationHandler;
         this.serverUrl = serverUrl;
+        this.mightResign = false;
+
+        this.pieceTypeHashMap = new HashMap<>();
+        pieceTypeHashMap.put("QUEEN", ChessPiece.PieceType.QUEEN);
+        pieceTypeHashMap.put("ROOK", ChessPiece.PieceType.ROOK);
+        pieceTypeHashMap.put("KNIGHT", ChessPiece.PieceType.KNIGHT);
+        pieceTypeHashMap.put("BISHOP", ChessPiece.PieceType.BISHOP);
     }
 
     public String eval(String input) {
@@ -50,7 +58,9 @@ public class GameClient {
                 case "join" -> joinGame(params);
                 case "observe" -> observeGame(params);
                 case "logout" -> logout();
-                case "leave" -> leave();
+                case "leave" -> leave(params);
+                case "move" -> move(params);
+                case "resign" -> resign(params);
                 default -> help();
             };
         } catch (NullPointerException e) {
@@ -95,8 +105,72 @@ public class GameClient {
         if (!inGame) {
             return "You are not currently in a game.";
         }
-        UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, this.)
-        ws.leave();
+        int gameNumber;
+        try {
+            gameNumber = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            return "You must specify which game you want to leave.";
+        }
+        UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, this.color, gameNumber);
+        ws.leave(req);
+        this.inGame = false;
+        return String.format("Left game #%s", gameNumber);
+    }
+
+    public String move(String... params) throws ResponseException {
+        if (!inGame || !signedIn) {
+            return "You cannot make a move when you are not in a game or not signed in.";
+        }
+        int gameNumber;
+        try {
+            gameNumber = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            return "You must specify which game you want to leave.";
+        }
+
+        ChessMove move = parseMove(Arrays.copyOfRange(params, 1, params.length));
+        if (move == null) {
+            return "Expected <GAME> <MOVE> <MOVE>";
+        }
+
+        UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, this.color, gameNumber);
+        ws.makeMove(req, move);
+        return "Made the move.";
+    }
+
+    public String resign(String... params) throws ResponseException {
+        if (mightResign) {
+            if (params[0].equals("resign") && params[1].equals("confirm")) {
+                int gameNumber;
+                try {
+                    gameNumber = Integer.parseInt(params[2]);
+                } catch (NumberFormatException e) {
+                    return "You must specify the game from which you want to resign.";
+                }
+                ws.resign(new UpdateGameRequest(this.currentAuthToken, this.color, this.gameCodeMap.get(gameNumber).gameID()));
+                return "Successfully resigned.";
+            } else {
+                mightResign = false;
+                return "No confirmation. Will not resign.";
+            }
+
+        } else {
+            mightResign = true;
+            return "Are you sure that you want to resign? If so, enter 'resign <game> confirm'";
+        }
+
+    }
+
+    private ChessMove parseMove(String... params) throws MoveParsingException {
+        if (!params[0].matches("[a-h][1-8]") || !params[1].matches("[a-h][1-8]")) {
+            return null;
+        }
+        // TODO
+        ChessPosition position = new ChessPosition()
+        if (params.length == 2) {
+            return new ChessMove()
+        }
+        new ChessMove()
     }
 
     public String register(String... params) throws ResponseException {
@@ -179,6 +253,7 @@ public class GameClient {
             ws.join(req);
 //            serverFacade.joinGame(req);
             this.inGame = true;
+            this.color = color;
             return String.format("Joined game: %s\n", params[0]) + drawBoard(new ChessGame(), color);
         }
         throw new ResponseException(400, "Error. Expected: <ID> [WHITE|BLACK]");
@@ -205,7 +280,8 @@ public class GameClient {
             sb.append(SET_TEXT_COLOR_BLUE + "leave");
             sb.append(SET_TEXT_COLOR_WHITE + " - the game\n");
             sb.append(SET_TEXT_COLOR_BLUE + "move");
-            sb.append(SET_TEXT_COLOR_WHITE + " - make a move in the chess game\n");
+            sb.append(SET_TEXT_COLOR_WHITE + " - make a move in the chess game.\n");
+            sb.append(SET_TEXT_COLOR_WHITE + " - valid moves specify the game as well as two positions on the board such as a7 or c2.\n");
             sb.append(SET_TEXT_COLOR_BLUE + "resign");
             sb.append(SET_TEXT_COLOR_WHITE + " - forfeit the game\n");
             sb.append(SET_TEXT_COLOR_BLUE + "highlight");
