@@ -1,6 +1,7 @@
 package client.websocket;
 
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
@@ -12,6 +13,7 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 
 //need to extend Endpoint for websocket to work properly
 public class WebSocketFacade extends Endpoint {

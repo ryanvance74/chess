@@ -4,10 +4,13 @@ import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import facade.*;
 import requests.*;
+import spark.Response;
 import websocket.commands.MoveCommand;
 
 import java.lang.StringBuilder;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 
 import static chess.ChessGame.TeamColor.BLACK;
@@ -140,7 +143,7 @@ public class GameClient {
 
     public String resign(String... params) throws ResponseException {
         if (mightResign) {
-            if (params[0].equals("resign") && params[1].equals("confirm")) {
+            if (params[0].equals("confirm")) {
                 int gameNumber;
                 try {
                     gameNumber = Integer.parseInt(params[2]);
@@ -158,6 +161,31 @@ public class GameClient {
             mightResign = true;
             return "Are you sure that you want to resign? If so, enter 'resign <game> confirm'";
         }
+
+    }
+
+    public String highlightLegalMoves(String... params) throws ResponseException {
+        int gameNumber;
+        try {
+            gameNumber = Integer.parseInt(params[0]);
+        } catch (NumberFormatException e) {
+            return "You must specify the game you want to highlight.";
+        }
+        if (!params[1].matches("[a-h][1-8]")) {
+            return "You must specify the piece that you want to highlight.";
+        }
+
+        ChessBoard board = this.gameCodeMap.get(gameNumber).game().getBoard();
+        ChessPosition position = new ChessPosition(Character.toLowerCase(params[0].charAt(0))-'a'+1, params[0].charAt(1));
+        ChessPiece piece = board.getPiece(position);
+        Collection<ChessMove> moves = piece.pieceMoves(board, position);
+
+        int[][] endPositions = new int[8][8];
+        for (ChessMove move : moves) {
+            // TODO have to fix the row-col order of the a-h 1-8 stuff
+            endPositions.add(move.getEndPosition());
+        }
+
 
     }
 
@@ -259,7 +287,7 @@ public class GameClient {
 //            serverFacade.joinGame(req);
             this.inGame = true;
             this.color = color;
-            return String.format("Joined game: %s\n", params[0]) + drawBoard(new ChessGame(), color);
+            return String.format("Joined game: %s\n", params[0]) + drawBoard(new ChessGame(), color, null);
         }
         throw new ResponseException(400, "Error. Expected: <ID> [WHITE|BLACK]");
     }
@@ -275,7 +303,7 @@ public class GameClient {
 
     public String observeGame(String... params) throws ResponseException {
         GameResultSingle gameObj = this.gameCodeMap.get(Integer.parseInt(params[0]));
-        return drawBoard(gameObj.game(), WHITE);
+        return drawBoard(gameObj.game(), WHITE, null);
     }
     public String help() {
         StringBuilder sb = new StringBuilder();
@@ -321,7 +349,7 @@ public class GameClient {
         return sb.toString();
     }
 
-    public String drawBoard(ChessGame game, ChessGame.TeamColor orientationTeamColor) {
+    public String drawBoard(ChessGame game, ChessGame.TeamColor orientationTeamColor, int[][] highlightArr) {
         StringBuilder sb = new StringBuilder();
         ChessBoard board = game.getBoard();
         drawHeader(sb, orientationTeamColor);
