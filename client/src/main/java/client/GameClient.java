@@ -130,7 +130,7 @@ public class GameClient {
 
         ChessMove move = parseMove(Arrays.copyOfRange(params, 1, params.length));
         if (move == null) {
-            return "Expected <GAME> <MOVE> <MOVE>";
+            return "Expected <GAME> <START POSITION> <END POSITION> <promotion-piece (if applicable)>";
         }
 
         UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, this.color, gameNumber);
@@ -165,12 +165,17 @@ public class GameClient {
         if (!params[0].matches("[a-h][1-8]") || !params[1].matches("[a-h][1-8]")) {
             return null;
         }
-        // TODO
-        ChessPosition position = new ChessPosition()
+        ChessPosition startPosition = new ChessPosition(Character.toLowerCase(params[0].charAt(0))-'a'+1, params[0].charAt(1));
+        ChessPosition endPosition = new ChessPosition(Character.toLowerCase(params[1].charAt(0))-'a'+1, params[1].charAt(1));
         if (params.length == 2) {
-            return new ChessMove()
+            return new ChessMove(startPosition, endPosition, null);
+        } else {
+            if (this.pieceTypeHashMap.containsKey(params[3])) {
+                return new ChessMove(startPosition, endPosition, this.pieceTypeHashMap.get(params[3]));
+            } else {
+                return null;
+            }
         }
-        new ChessMove()
     }
 
     public String register(String... params) throws ResponseException {
