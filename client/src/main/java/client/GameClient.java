@@ -3,9 +3,12 @@ import chess.*;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import facade.*;
+import org.eclipse.jetty.server.Authentication;
 import requests.*;
 import spark.Response;
 import websocket.commands.MoveCommand;
+import websocket.commands.UserGameCommand;
+import websocket.commands.UserGameCommand.CommandType;
 
 import java.lang.StringBuilder;
 import java.util.ArrayList;
@@ -115,8 +118,12 @@ public class GameClient {
         } catch (NumberFormatException e) {
             return "You must specify which game you want to leave.";
         }
-        UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, this.color, gameNumber);
-        ws.leave(req);
+        if (!this.gameCodeMap.containsKey(gameNumber)) {
+            return "Invalid game number";
+        }
+        int gameId = this.gameCodeMap.get(gameNumber).gameID();
+        UserGameCommand command = new UserGameCommand(CommandType.LEAVE, this.currentAuthToken, gameId);
+        ws.sendCommand(command);
         this.inGame = false;
         return String.format("Left game #%s", gameNumber);
     }
@@ -131,14 +138,18 @@ public class GameClient {
         } catch (NumberFormatException e) {
             return "You must specify which game you want to leave.";
         }
+        if (!this.gameCodeMap.containsKey(gameNumber)) {
+            return "Invalid game number";
+        }
+        int gameId = this.gameCodeMap.get(gameNumber).gameID();
 
         ChessMove move = parseMove(Arrays.copyOfRange(params, 1, params.length));
         if (move == null) {
             return "Expected <GAME> <START POSITION> <END POSITION> <promotion-piece (if applicable)>";
         }
 
-        UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, this.color, gameNumber);
-        ws.makeMove(req, move);
+        MoveCommand moveCommand = new MoveCommand(CommandType.MAKE_MOVE, this.currentAuthToken, gameId, move);
+        ws.sendCommand(moveCommand);
         return "Made the move.";
     }
 
@@ -151,7 +162,13 @@ public class GameClient {
                 } catch (NumberFormatException e) {
                     return "You must specify the game from which you want to resign.";
                 }
-                ws.resign(new UpdateGameRequest(this.currentAuthToken, this.color, this.gameCodeMap.get(gameNumber).gameID()));
+                if (!this.gameCodeMap.containsKey(gameNumber)) {
+                    return "Invalid game number";
+                }
+                int gameId = this.gameCodeMap.get(gameNumber).gameID();
+
+                UserGameCommand command = new UserGameCommand(CommandType.RESIGN, this.currentAuthToken, gameId);
+                ws.sendCommand(command);
                 return "Successfully resigned.";
             } else {
                 mightResign = false;
@@ -284,9 +301,10 @@ public class GameClient {
             ChessGame.TeamColor color = params[1].equalsIgnoreCase("WHITE") ? WHITE : BLACK;
             int gameId = this.gameCodeMap.get(Integer.parseInt(params[0])).gameID();
             UpdateGameRequest req = new UpdateGameRequest(this.currentAuthToken, color, gameId);
+
             ws = new WebSocketFacade(serverUrl, notificationHandler);
-            ws.join(req);
-//            serverFacade.joinGame(req);
+            serverFacade.joinGame(req);
+            ws.sendCommand(new UserGameCommand(CommandType.CONNECT, this.currentAuthToken, gameId));
             this.inGame = true;
             this.color = color;
             return String.format("Joined game: %s\n", params[0]) + drawBoard(new ChessGame(), color, null);
