@@ -160,6 +160,10 @@ public class ChessGame {
         this.hasResigned = true;
     }
 
+    public boolean getHasResigned() {
+        return this.hasResigned;
+    }
+
     /**
      * Gets the current chessboard
      *

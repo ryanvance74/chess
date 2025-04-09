@@ -26,6 +26,7 @@ import websocket.messages.ServerMessage.ServerMessageType;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.crypto.Data;
 import java.io.IOException;
+import chess.ChessGame.TeamColor;
 
 
 
@@ -64,14 +65,15 @@ public class WebSocketHandler {
         System.out.println("received message DEBUG MESSAGE");
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
+            System.out.println(message);
             command = new Gson().fromJson(message, MoveCommand.class);
         }
         switch (command.getCommandType()) {
             case CONNECT -> connect(session, command);
             case MAKE_GAME_MANAGER -> createGameConnectionManager(command.getGameID());
             case MAKE_MOVE -> makeMove(session, (MoveCommand) command);
-            case LEAVE -> leaveGame(command);
-            case RESIGN -> resignGame(command);
+            case LEAVE -> leaveGame(session, command);
+            case RESIGN -> resignGame(session, command);
         }
     }
 
@@ -131,22 +133,45 @@ public class WebSocketHandler {
         ChessGame game;
 //        this.session.getBasicRemote().sendText(new Gson().toJson(command));
         try {
+
+
+            AuthData authData = userService.getAuthDataNameFromAuth(command.getAuthToken());
+            if (authData == null) {
+                session.getRemote().sendString(new Gson().toJson(
+                        new ServerErrorMessage(ServerMessageType.ERROR, "Error: you have not logged in yet.")));
+                return;
+            }
+            userName = authData.username();
             gameData = gameService.getGameFromId(command.getAuthToken(), command.getGameID());
+            game = gameData.game();
+            if (game.isInCheckmate(TeamColor.WHITE) || game.isInCheckmate(TeamColor.BLACK)) {
+                session.getRemote().sendString(new Gson().toJson(
+                        new ServerErrorMessage(ServerMessageType.ERROR, "Error: the game has ended. You cannot make another move.")));
+                return;
+            }
+            if (game.getTeamTurn() == TeamColor.WHITE && !gameData.whiteUsername().equals(userName)) {
+                session.getRemote().sendString(new Gson().toJson(
+                        new ServerErrorMessage(ServerMessageType.ERROR, "Error: it is not your turn!")));
+                return;
+            } else if (game.getTeamTurn() == TeamColor.BLACK && !gameData.blackUsername().equals(userName)) {
+                session.getRemote().sendString(new Gson().toJson(
+                        new ServerErrorMessage(ServerMessageType.ERROR, "Error: it is not your turn!")));
+                return;
+            }
 
-
-            userName = userService.getAuthDataNameFromAuth(command.getAuthToken()).username();
-
-//            if (gameData.game().getBoard().getPiece(move.getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE) {
-//                if (!gameData.whiteUsername().equals(userName)) {
-        //            this.gameConnectionManagers.get(command.getGameID()).singleSend(userName,
-        //                    new ServerErrorMessage(ServerMessageType.ERROR, "Error: that is not your piece!"));
-//                    // TODO ERROR MESSAGE
-//                }
-//            } else {
-//                if (!gameData.blackUsername().equals(userName)) {
-//                   this.gameConnectionManagers.get(command.getGameID()).singleSend(userName,
-//                            new ServerErrorMessage(ServerMessageType.ERROR, "Error: that is not your piece!"));
-//            }
+            if (game.getBoard().getPiece(move.getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE) {
+                if (!gameData.whiteUsername().equals(userName)) {
+                    session.getRemote().sendString(new Gson().toJson(
+                            new ServerErrorMessage(ServerMessageType.ERROR, "Error: that is not your piece!")));
+                    return;
+                }
+            } else {
+                if (!gameData.blackUsername().equals(userName)) {
+                    session.getRemote().sendString(new Gson().toJson(
+                            new ServerErrorMessage(ServerMessageType.ERROR, "Error: that is not your piece!")));
+                    return;
+                }
+            }
             game = gameService.updateGameState(command.getAuthToken(), command.getGameID(), move);
 //            if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
 //                String whiteUser = gameData.whiteUsername();
@@ -175,7 +200,7 @@ public class WebSocketHandler {
             String message = String.format("%s%s moves to %s%s", cLetterInitial, rNumberInitial,
                     cLetterFinal, rNumberFinal);
             var notification = new NotificationMessage(ServerMessageType.NOTIFICATION, message);
-            this.gameConnectionManagers.get(command.getGameID()).broadcast("", notification);
+            this.gameConnectionManagers.get(command.getGameID()).broadcast(userName, notification);
             var loadGameNotification = new LoadGameMessage(ServerMessageType.LOAD_GAME, game);
             this.gameConnectionManagers.get(command.getGameID()).broadcast("", loadGameNotification);
         } catch (Exception e) {
@@ -184,7 +209,7 @@ public class WebSocketHandler {
         }
     }
 
-    private void leaveGame(UserGameCommand command) throws IOException {
+    private void leaveGame(Session session, UserGameCommand command) throws IOException {
         String userName="";
         try {
             userName = userService.getAuthDataNameFromAuth(command.getAuthToken()).username();
@@ -198,10 +223,22 @@ public class WebSocketHandler {
         }
     }
 
-    private void resignGame(UserGameCommand command) throws IOException {
+    private void resignGame(Session session, UserGameCommand command) throws IOException {
         String userName="";
         try {
+            // TODO make all username checks safe
+
             userName = userService.getAuthDataNameFromAuth(command.getAuthToken()).username();
+            GameData gameData = gameService.getGameFromId(command.getAuthToken(), command.getGameID());
+            if (!userName.equals(gameData.whiteUsername()) && !userName.equals(gameData.blackUsername())) {
+                session.getRemote().sendString(new Gson().toJson(
+                        new ServerErrorMessage(ServerMessageType.ERROR, "You are an observer. You cannot resign from the game!")));
+                return;
+            } else if (gameData.game().getHasResigned()) {
+                session.getRemote().sendString(new Gson().toJson(
+                        new ServerErrorMessage(ServerMessageType.ERROR, "The game has already ended. You cannot resign.")));
+                return;
+            }
             gameService.setGameHasResigned(command.getAuthToken(), command.getGameID());
             String message = String.format("%s has resigned. The game game is over", userName);
             var notification = new NotificationMessage(ServerMessageType.NOTIFICATION, message);

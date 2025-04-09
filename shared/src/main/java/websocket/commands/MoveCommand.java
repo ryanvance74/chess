@@ -5,14 +5,14 @@ import chess.ChessMove;
 import java.util.Objects;
 
 public class MoveCommand extends UserGameCommand {
-    private final ChessMove chessMove;
-    public MoveCommand(CommandType commandType, String authToken, Integer gameID, ChessMove chessMove) {
+    private final ChessMove move;
+    public MoveCommand(CommandType commandType, String authToken, Integer gameID, ChessMove move) {
         super(commandType, authToken, gameID);
-        this.chessMove = chessMove;
+        this.move = move;
     }
 
     public ChessMove getMove() {
-        return this.chessMove;
+        return this.move;
     }
 
     @Override

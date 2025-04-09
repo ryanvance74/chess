@@ -136,7 +136,7 @@ public class SQLGameDAO implements GameDAO {
         }
         String updateStatement = "UPDATE game SET white_username = IF(white_username = ?, NULL, white_username), " +
                 "black_username = IF(black_username = ?, NULL, black_username) WHERE game_id=?";
-        DatabaseDAOCommunicator.executeUpdate(updateStatement, username, gameId);
+        DatabaseDAOCommunicator.executeUpdate(updateStatement, username, username, gameId);
     }
 
     private GameData validateId(int gameId) throws DataAccessException {
