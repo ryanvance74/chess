@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.DuplicateUserException;
@@ -116,6 +117,26 @@ public class SQLGameDAO implements GameDAO {
                 DatabaseDAOCommunicator.executeUpdate(updateStatement, username, gameData.gameID());
             }
         }
+    }
+
+    public void updateGameState(ChessGame game, int gameId) throws DataAccessException, DuplicateUserException {
+
+        GameData gameData = validateId(gameId);
+        if (gameData == null) {
+            throw new DataAccessException("ERROR: failed to retrieve game by given game ID. Does not exist.");
+        }
+        String updateStatement = "UPDATE game SET chess_game=? WHERE game_id=?";
+        DatabaseDAOCommunicator.executeUpdate(updateStatement, game, gameData.gameID());
+    }
+
+    public void removePlayerFromGame(int gameId, String username) throws DataAccessException {
+        GameData gameData = validateId(gameId);
+        if (gameData == null) {
+            throw new DataAccessException("ERROR: failed to retrieve game by given game ID. Does not exist.");
+        }
+        String updateStatement = "UPDATE game SET white_username = IF(white_username = ?, NULL, white_username), " +
+                "black_username = IF(black_username = ?, NULL, black_username) WHERE game_id=?";
+        DatabaseDAOCommunicator.executeUpdate(updateStatement, username, gameId);
     }
 
     private GameData validateId(int gameId) throws DataAccessException {

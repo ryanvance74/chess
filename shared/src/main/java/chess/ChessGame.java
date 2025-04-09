@@ -13,10 +13,12 @@ import java.util.Objects;
 public class ChessGame {
     TeamColor teamTurn;
     ChessBoard board;
+    boolean hasResigned;
     public ChessGame() {
         this.setTeamTurn(TeamColor.WHITE);
         this.board = new ChessBoard();
         board.resetBoard();
+        this.hasResigned = false;
     }
 
     /**
@@ -84,6 +86,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (this.hasResigned) {
+            throw new InvalidMoveException("Error: the game is over. You cannot make another move");
+        }
         if (board.getPiece(move.getStartPosition()) == null) {throw new InvalidMoveException();}
         TeamColor pieceColor = board.getPiece(move.getStartPosition()).getTeamColor();
         if (!validateSingleMove(move, pieceColor, true)) {throw new InvalidMoveException();}
@@ -151,11 +156,16 @@ public class ChessGame {
         this.board = board;
     }
 
+    public void setHasResigned() {
+        this.hasResigned = true;
+    }
+
     /**
      * Gets the current chessboard
      *
      * @return the chessboard
      */
+
     public ChessBoard getBoard() {
         return this.board;
     }

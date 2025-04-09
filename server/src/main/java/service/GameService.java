@@ -87,23 +87,61 @@ public class GameService {
 //                System.out.println("catching an error here");
                 throw new ServerErrorException(e.getMessage());
             }
-
         }
     }
 
-    public void updateGame(UpdateGameRequest req, ChessMove move) throws DataAccessException {
-
-        GameData gameData = getGameFromId(req.authToken(), req.gameID());
-        ChessGame game = gameData.game();
-
-        try {
-            game.makeMove(move);
-        } catch (InvalidMoveException e) {
-            throw new DataAccessException(e.getMessage());
+    public ChessGame updateGameState(String authToken, int gameId, ChessMove move) throws DataAccessException {
+        AuthData authData = authDao.getAuth(authToken);
+        if (authData == null) {
+            throw new UnauthorizedRequestException("Error: unauthorized");
+        } else {
+            try {
+                GameData gameData = getGameFromId(authToken, gameId);
+                ChessGame game = gameData.game();
+                game.makeMove(move);
+                gameDao.updateGameState(game, gameData.gameID());
+                return game;
+            } catch (DuplicateUserException e) {
+                throw new DuplicateUserException(e.getMessage());
+            } catch (Exception e) {
+//                System.out.println("catching an error here");
+                throw new ServerErrorException(e.getMessage());
+            }
         }
+    }
 
-        String serializedGame = DatabaseDAOCommunicator.serializeGame(game);
-        String updateStatement = "UPDATE game SET game=? WHERE game_id=?";
-        DatabaseDAOCommunicator.executeUpdate(updateStatement, serializedGame, gameId);
+    public void removeUserFromGame(String authToken, int gameId) throws DataAccessException {
+        AuthData authData = authDao.getAuth(authToken);
+        if (authData == null) {
+            throw new UnauthorizedRequestException("Error: unauthorized");
+        } else {
+            try {
+                gameDao.removePlayerFromGame(gameId, authData.username());
+            } catch (DuplicateUserException e) {
+                throw new DuplicateUserException(e.getMessage());
+            } catch (Exception e) {
+//                System.out.println("catching an error here");
+                throw new ServerErrorException(e.getMessage());
+            }
+        }
+    }
+
+    public void setGameHasResigned(String authToken, int gameId) throws DataAccessException {
+        AuthData authData = authDao.getAuth(authToken);
+        if (authData == null) {
+            throw new UnauthorizedRequestException("Error: unauthorized");
+        } else {
+            try {
+                GameData gameData = getGameFromId(authToken, gameId);
+                ChessGame game = gameData.game();
+                game.setHasResigned();
+                gameDao.updateGameState(game, gameData.gameID());
+            } catch (DuplicateUserException e) {
+                throw new DuplicateUserException(e.getMessage());
+            } catch (Exception e) {
+//                System.out.println("catching an error here");
+                throw new ServerErrorException(e.getMessage());
+            }
+        }
     }
 }

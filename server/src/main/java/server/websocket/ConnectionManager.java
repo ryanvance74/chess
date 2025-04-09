@@ -35,4 +35,21 @@ public class ConnectionManager {
             connections.remove(c.userName);
         }
     }
+
+    public void singleSend(String includeUserName, ServerMessage notification) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (c.userName.equals(includeUserName)) {
+                    c.send(notification.toString());
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.userName);
+        }
+    }
 }
