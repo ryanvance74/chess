@@ -17,7 +17,6 @@ import server.Server;
 import service.GameService;
 import service.UserService;
 import websocket.commands.*;
-import javax.websocket.*;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerErrorMessage;
