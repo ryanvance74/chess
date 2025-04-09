@@ -94,7 +94,6 @@ public class ServerFacadeTests {
 
     @Test
     public void badLogout() {
-        Assertions.assertDoesNotThrow(() -> facade.register(new RegisterRequest("testUser_jdk", "epic_password_529", "vim@nano.edu")));
         Assertions.assertDoesNotThrow(() -> facade.register(new RegisterRequest("myUsername1234", "myPassword5678", "test@email.byu.edu")));
         Assertions.assertDoesNotThrow(() -> facade.login(new LoginRequest("myUsername1234", "myPassword5678")));
         Assertions.assertDoesNotThrow(() -> {}
