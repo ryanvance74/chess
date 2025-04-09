@@ -10,24 +10,6 @@ public class ServerErrorMessage extends ServerMessage {
     }
 
     public String getMessage() {return this.errorMessage;}
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ServerMessage)) {
-            return false;
-        }
-        NotificationMessage that = (NotificationMessage) o;
-        return getServerMessageType() == that.getServerMessageType() &&
-                getMessage().equals(that.getMessage());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getServerMessageType(), getMessage());
-    }
 }
 
 
