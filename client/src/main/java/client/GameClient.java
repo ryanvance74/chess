@@ -3,15 +3,12 @@ import chess.*;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import facade.*;
-import org.eclipse.jetty.server.Authentication;
 import requests.*;
-import spark.Response;
 import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.commands.UserGameCommand.CommandType;
 
 import java.lang.StringBuilder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
