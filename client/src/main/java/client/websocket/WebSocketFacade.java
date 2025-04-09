@@ -38,16 +38,10 @@ public class WebSocketFacade extends Endpoint {
                         notificationHandler.notify(notification);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
-                        // TODO error message subclass
                     }
 
                 }
             });
-//            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-//                System.out.println("received message from server - found in message handler");
-//                ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
-//                notificationHandler.notify(notification);
-//            });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
@@ -65,44 +59,4 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, e.getMessage());
         }
     }
-
-//    public void join(UpdateGameRequest req) throws ResponseException {
-//        try {
-//            var action = new UserGameCommand(CommandType.CONNECT, req.authToken(), req.gameID());
-//            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-//        } catch (IOException ex) {
-//            throw new ResponseException(500, ex.getMessage());
-//        }
-//    }
-
-//    public void leave(UpdateGameRequest req) throws ResponseException {
-//        try {
-//            var action = new UserGameCommand(CommandType.LEAVE, req.authToken(), req.gameID());
-//            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-//            this.session.close();
-//        } catch (IOException ex) {
-//            throw new ResponseException(500, ex.getMessage());
-//        }
-//    }
-
-//    public void makeMove(MoveCommand moveCommand) throws ResponseException {
-//        try {
-//            this.session.getBasicRemote().sendText(new Gson().toJson(moveCommand));
-//        } catch (IOException ex) {
-//            throw new ResponseException(500, ex.getMessage());
-//        }
-//    }
-//
-//    public void resign(UpdateGameRequest req) throws ResponseException {
-//        try {
-//            var action = new UserGameCommand(CommandType.RESIGN, req.authToken(), req.gameID());
-//            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-//            this.session.close();
-//        } catch (IOException ex) {
-//            throw new ResponseException(500, ex.getMessage());
-//        }
-//    }
-
-
-
 }

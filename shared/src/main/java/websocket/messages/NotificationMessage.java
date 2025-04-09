@@ -8,8 +8,10 @@ public class NotificationMessage extends ServerMessage {
         super(type);
         this.message = message;
     }
-
-    public String getMessage() {return this.message;}
+    @Override
+    public int hashCode() {
+        return Objects.hash(getServerMessageType(), getMessage());
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -24,8 +26,5 @@ public class NotificationMessage extends ServerMessage {
                 getMessage().equals(that.getMessage());
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getServerMessageType(), getMessage());
-    }
+    public String getMessage() {return this.message;}
 }

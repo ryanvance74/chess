@@ -96,14 +96,6 @@ public class GameClient {
             }
             return "Something about your request was incorrect. Please run the help command for more information.";
         }
-//        } (ResponseException ex) {
-//            try {
-//                JsonObject obj = new Gson().fromJson(ex.getMessage(), JsonObject.class);
-//                return obj.get("message").getAsString();
-//            } catch (JsonSyntaxException e) {
-//                return ex.getMessage();
-//            }
-//        }
     }
 
     public String leave(String... params) throws ResponseException {

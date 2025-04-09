@@ -98,12 +98,19 @@ public class WebSocketHandler {
             gameConnectionManagers.put(gameData.gameID(), new ConnectionManager());
         }
         gameConnectionManagers.get(gameData.gameID()).add(userName, session);
-
+        ChessGame.TeamColor playerPerspective;
+        if (gameData.blackUsername().equals(userName)) {
+            playerPerspective = TeamColor.WHITE;
+        } else {
+            playerPerspective = TeamColor.BLACK;
+        }
         var notification = new NotificationMessage(ServerMessageType.NOTIFICATION, message);
         System.out.println("getting in connect: " + gameData.gameID());
         this.gameConnectionManagers.get(gameData.gameID()).broadcast(userName, notification);
         System.out.println("made it past get connection manager");
-        var loadGameNotification = new LoadGameMessage(ServerMessageType.LOAD_GAME, gameData.game());
+
+
+        var loadGameNotification = new LoadGameMessage(ServerMessageType.LOAD_GAME, gameData.game(), playerPerspective);
         this.gameConnectionManagers.get(gameData.gameID()).singleSend(userName, loadGameNotification);
         System.out.println("sent load game message");
     }
@@ -170,8 +177,8 @@ public class WebSocketHandler {
                     cLetterFinal, rNumberFinal);
             var notification = new NotificationMessage(ServerMessageType.NOTIFICATION, message);
             this.gameConnectionManagers.get(command.getGameID()).broadcast(userName, notification);
-            var loadGameNotification = new LoadGameMessage(ServerMessageType.LOAD_GAME, game);
-            this.gameConnectionManagers.get(command.getGameID()).broadcast("", loadGameNotification);
+            var loadGameNotification = new LoadGameMessage(ServerMessageType.LOAD_GAME, game, TeamColor.WHITE);
+            this.gameConnectionManagers.get(command.getGameID()).broadcastMove(loadGameNotification, gameData.blackUsername());
 
             if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
                 String whiteUser = gameData.whiteUsername();
@@ -215,8 +222,6 @@ public class WebSocketHandler {
     private void resignGame(Session session, UserGameCommand command) throws IOException {
         String userName="";
         try {
-            // TODO make all username checks safe
-
             userName = userService.getAuthDataNameFromAuth(command.getAuthToken()).username();
             GameData gameData = gameService.getGameFromId(command.getAuthToken(), command.getGameID());
             if (!userName.equals(gameData.whiteUsername()) && !userName.equals(gameData.blackUsername())) {

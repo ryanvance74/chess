@@ -39,8 +39,8 @@ public class Repl implements NotificationHandler {
     public void notify(ServerMessage notification) {
         System.out.println("received notification from server");
         if (notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-            // TODO hard coded perspective as white for now.
-            System.out.println(client.drawBoard(((LoadGameMessage) notification).getGame(), ChessGame.TeamColor.WHITE, null ));
+            LoadGameMessage loadGameMessage = (LoadGameMessage) notification;
+            System.out.println(client.drawBoard(loadGameMessage.getGame(), loadGameMessage.getPlayerPerspective(), null ));
         } else {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.toString());
         }
