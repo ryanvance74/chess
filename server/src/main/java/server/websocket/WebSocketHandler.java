@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dataaccess.DatabaseDAOCommunicator;
 import dataaccess.exceptions.DataAccessException;
-import gsonextras.RuntimeTypeAdapterFactory;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -41,17 +40,6 @@ public class WebSocketHandler {
     public WebSocketHandler(UserService userService, GameService gameService) {
         this.userService = userService;
         this.gameService = gameService;
-
-//        RuntimeTypeAdapterFactory<UserGameCommand> commandTypeAdapterFactory
-//                = RuntimeTypeAdapterFactory.of(UserGameCommand.class, "commandType");
-//        commandTypeAdapterFactory.registerSubtype(MoveCommand.class, "MAKE_MOVE");
-//        commandTypeAdapterFactory.registerSubtype(UserGameCommand.class, "CONNECT");
-//        commandTypeAdapterFactory.registerSubtype(UserGameCommand.class, "LEAVE");
-//        commandTypeAdapterFactory.registerSubtype(UserGameCommand.class, "RESIGN");
-//        commandTypeAdapterFactory.registerSubtype(UserGameCommand.class, "MAKE_GAME_MANAGER");
-//        this.commandGson = new GsonBuilder()
-//                .registerTypeAdapterFactory(commandTypeAdapterFactory)
-//                .create();
     }
 
     @OnWebSocketError
