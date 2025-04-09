@@ -173,24 +173,6 @@ public class WebSocketHandler {
                 }
             }
             game = gameService.updateGameState(command.getAuthToken(), command.getGameID(), move);
-//            if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
-//                String whiteUser = gameData.whiteUsername();
-//                var notification = new NotificationMessage(ServerMessageType.NOTIFICATION, whiteUser + "is in check");
-//                this.gameConnectionManagers.get(command.getGameID()).broadcast("", notification);
-//            } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
-//                String blackUser = gameData.blackUsername();
-//                var notification = new NotificationMessage(ServerMessageType.NOTIFICATION, blackUser + "is in check");
-//                this.gameConnectionManagers.get(command.getGameID()).broadcast("", notification);
-//            }
-//            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
-//                String whiteUser = gameData.whiteUsername();
-//                var notification = new NotificationMessage(ServerMessageType.NOTIFICATION, whiteUser + "has been checkmated!");
-//                this.gameConnectionManagers.get(command.getGameID()).broadcast("", notification);
-//            } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-//                String blackUser = gameData.blackUsername();
-//                var notification = new NotificationMessage(ServerMessageType.NOTIFICATION, blackUser + "has been checkmated!");
-//                this.gameConnectionManagers.get(command.getGameID()).broadcast("", notification);
-//            }
 
             String cLetterInitial = String.valueOf((char) ('a' + move.getStartPosition().getColumn() - 1));
             String rNumberInitial = (String.valueOf(move.getStartPosition().getRow()));
@@ -203,9 +185,28 @@ public class WebSocketHandler {
             this.gameConnectionManagers.get(command.getGameID()).broadcast(userName, notification);
             var loadGameNotification = new LoadGameMessage(ServerMessageType.LOAD_GAME, game);
             this.gameConnectionManagers.get(command.getGameID()).broadcast("", loadGameNotification);
+
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                String whiteUser = gameData.whiteUsername();
+                notification = new NotificationMessage(ServerMessageType.NOTIFICATION, whiteUser + "has been checkmated!");
+                this.gameConnectionManagers.get(command.getGameID()).broadcast("", notification);
+            } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                String blackUser = gameData.blackUsername();
+                notification = new NotificationMessage(ServerMessageType.NOTIFICATION, blackUser + "has been checkmated!");
+                this.gameConnectionManagers.get(command.getGameID()).broadcast("", notification);
+            } else if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
+                String whiteUser = gameData.whiteUsername();
+                notification = new NotificationMessage(ServerMessageType.NOTIFICATION, whiteUser + "is in check");
+                this.gameConnectionManagers.get(command.getGameID()).broadcast("", notification);
+            } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
+                String blackUser = gameData.blackUsername();
+                notification = new NotificationMessage(ServerMessageType.NOTIFICATION, blackUser + "is in check");
+                this.gameConnectionManagers.get(command.getGameID()).broadcast("", notification);
+            }
         } catch (Exception e) {
-                this.gameConnectionManagers.get(command.getGameID()).singleSend(userName,
-                        new ServerErrorMessage(ServerMessageType.ERROR, e.getMessage()));
+            System.out.println("caught an exception");
+            session.getRemote().sendString(new Gson().toJson(
+                    new ServerErrorMessage(ServerMessageType.ERROR, "Error: that is an invalid move.")));
         }
     }
 
@@ -216,7 +217,8 @@ public class WebSocketHandler {
             gameService.removeUserFromGame(command.getAuthToken(), command.getGameID());
             String message = String.format("%s has left the game.", userName);
             var notification = new NotificationMessage(ServerMessageType.NOTIFICATION, message);
-            this.gameConnectionManagers.get(command.getGameID()).broadcast("", notification);
+            this.gameConnectionManagers.get(command.getGameID()).broadcast(userName, notification);
+            this.gameConnectionManagers.get(command.getGameID()).remove(userName);
         } catch (Exception e) {
             this.gameConnectionManagers.get(command.getGameID()).singleSend(userName,
                     new ServerErrorMessage(ServerMessageType.ERROR, e.getMessage()));
