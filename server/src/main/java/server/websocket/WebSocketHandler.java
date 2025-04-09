@@ -8,10 +8,12 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import requests.UpdateGameRequest;
 import service.GameService;
 import service.UserService;
 import websocket.commands.*;
-import websocket.messages.ServerMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage.ServerMessageType;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.crypto.Data;
 import java.io.IOException;
@@ -34,17 +36,13 @@ public class WebSocketHandler {
                 .create();
     }
 
-    public void createGameConnectionManager(int gameId) {
-        gameConnectionManagers.put(gameId, new ConnectionManager());
-    }
-
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommand command = commandGson.fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
             case CONNECT -> connect(session, command);
-            case MAKE_GAME_MANAGER -> createGameConnectionManager(session, )
-            case MAKE_MOVE -> makeMove()
+            case MAKE_GAME_MANAGER -> createGameConnectionManager(command.getGameID());
+            case MAKE_MOVE -> makeMove(session, command);
             case LEAVE ->
         }
     }
@@ -68,10 +66,18 @@ public class WebSocketHandler {
         }
         gameConnectionManagers.get(gameData.gameID()).add(userName, session);
 
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(userName, notification);
+        var notification = new NotificationMessage(ServerMessageType.NOTIFICATION, message);
+        this.gameConnectionManagers.get(gameData.gameID()).broadcast(userName, notification);
     }
 
+    public void createGameConnectionManager(int gameId) {
+        gameConnectionManagers.put(gameId, new ConnectionManager());
+    }
+
+    public void makeMove(Session session, UserGameCommand command) {
+        gameService.updateGameAfterJoin();
+
+    }
 
 
 //    private void exit(String visitorName) throws IOException {

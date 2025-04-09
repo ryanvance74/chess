@@ -97,12 +97,12 @@ public class SQLGameDAO implements GameDAO {
 
         if (playerColor.equals("WHITE")) {
             if (gameData.whiteUsername() != null) {
-                System.out.println(playerColor);
-                System.out.println(username);
-                System.out.println(gameData.whiteUsername());
-                System.out.println(gameData.blackUsername());
-                System.out.println(gameData.gameID());
-                System.out.println(gameData.gameName());
+//                System.out.println(playerColor);
+//                System.out.println(username);
+//                System.out.println(gameData.whiteUsername());
+//                System.out.println(gameData.blackUsername());
+//                System.out.println(gameData.gameID());
+//                System.out.println(gameData.gameName());
                 throw new DuplicateUserException("Error: already taken");
             } else {
                 String updateStatement = "UPDATE game SET white_username=? WHERE game_id=?";

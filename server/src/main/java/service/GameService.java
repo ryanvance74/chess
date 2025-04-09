@@ -1,4 +1,7 @@
 package service;
+import chess.ChessMove;
+import chess.ChessGame;
+import chess.InvalidMoveException;
 import dataaccess.*;
 import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.DuplicateUserException;
@@ -86,5 +89,21 @@ public class GameService {
             }
 
         }
+    }
+
+    public void updateGame(UpdateGameRequest req, ChessMove move) throws DataAccessException {
+
+        GameData gameData = getGameFromId(req.authToken(), req.gameID());
+        ChessGame game = gameData.game();
+
+        try {
+            game.makeMove(move);
+        } catch (InvalidMoveException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
+        String serializedGame = DatabaseDAOCommunicator.serializeGame(game);
+        String updateStatement = "UPDATE game SET game=? WHERE game_id=?";
+        DatabaseDAOCommunicator.executeUpdate(updateStatement, serializedGame, gameId);
     }
 }
