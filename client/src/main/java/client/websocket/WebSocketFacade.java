@@ -1,21 +1,13 @@
 package client.websocket;
 
-import chess.ChessMove;
-import chess.ChessPosition;
 import com.google.gson.Gson;
-import org.eclipse.jetty.server.Response;
-import server.websocket.WebSocketHandler;
-import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
-import websocket.commands.UserGameCommand.CommandType;
 import facade.ResponseException;
-import requests.UpdateGameRequest;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 
 //need to extend Endpoint for websocket to work properly
 public class WebSocketFacade extends Endpoint {
