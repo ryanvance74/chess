@@ -41,6 +41,7 @@ public class GameClient {
         this.notificationHandler = notificationHandler;
         this.serverUrl = serverUrl;
         this.mightResign = false;
+        this.ws = new WebSocketFacade(serverUrl, notificationHandler);
 
         this.pieceTypeHashMap = new HashMap<>();
         pieceTypeHashMap.put("QUEEN", ChessPiece.PieceType.QUEEN);
@@ -310,7 +311,7 @@ public class GameClient {
             ws.sendCommand(new UserGameCommand(CommandType.CONNECT, this.currentAuthToken, gameId));
             this.inGame = true;
             this.color = color;
-            return String.format("Joined game: %s\n", params[0]) + drawBoard(new ChessGame(), color, null);
+            return String.format("Joined game: %s\n", params[0]); //+ drawBoard(new ChessGame(), color, null);
         }
         throw new ResponseException(400, "Error. Expected: <ID> [WHITE|BLACK]");
     }

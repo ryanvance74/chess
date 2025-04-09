@@ -34,10 +34,28 @@ public class WebSocketFacade extends Endpoint {
             this.session = container.connectToServer(this, socketURI);
 
             //set message handler
-            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
-                notificationHandler.notify(notification);
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    try {
+                        System.out.println("received message from server - found in message handler");
+                        ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
+                        if (notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+                            notificationHandler.notify(new Gson().fromJson(message, LoadGameMessage.class));
+                        }
+                        notificationHandler.notify(notification);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                        // TODO error message subclass
+                    }
+
+                }
             });
+//            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
+//                System.out.println("received message from server - found in message handler");
+//                ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
+//                notificationHandler.notify(notification);
+//            });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());
         }

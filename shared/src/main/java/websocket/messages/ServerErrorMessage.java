@@ -3,13 +3,13 @@ package websocket.messages;
 import java.util.Objects;
 
 public class ServerErrorMessage extends ServerMessage {
-    String message;
-    public ServerErrorMessage(ServerMessage.ServerMessageType type, String message) {
+    String errorMessage;
+    public ServerErrorMessage(ServerMessage.ServerMessageType type, String errorMessage) {
         super(type);
-        this.message = message;
+        this.errorMessage = errorMessage;
     }
 
-    public String getMessage() {return this.message;}
+    public String getMessage() {return this.errorMessage;}
 
     @Override
     public boolean equals(Object o) {

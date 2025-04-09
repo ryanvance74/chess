@@ -40,7 +40,6 @@ public class MemoryGameDAO implements GameDAO{
         }
 
     }
-
     public void clearData() {
         gameDataHashMap.clear();
     }
@@ -49,5 +48,6 @@ public class MemoryGameDAO implements GameDAO{
         return gameDataHashMap.isEmpty();
     }
 
-
+    public void removePlayerFromGame(int number, String word) {}
+    public void updateGameState(ChessGame game, int number) {}
 }

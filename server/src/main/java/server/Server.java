@@ -47,7 +47,7 @@ public class Server {
             WebSocketHandler webSocketHandler = new WebSocketHandler(userService, gameService);
 
             // webSocketHandler
-
+            Spark.webSocket("/ws", webSocketHandler);
             // clearHandler
             Spark.delete("/db", clearHandler::delete);
             // userHandler

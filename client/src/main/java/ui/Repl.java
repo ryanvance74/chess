@@ -1,10 +1,13 @@
 package ui;
+import chess.ChessGame;
 import client.GameClient;
+import client.websocket.NotificationHandler;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
-public class Repl {
+public class Repl implements NotificationHandler {
     private final GameClient client;
 
     public Repl(String serverUrl) {
@@ -34,7 +37,14 @@ public class Repl {
     }
 
     public void notify(ServerMessage notification) {
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.toString());
+        System.out.println("received notification from server");
+        if (notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            // TODO hard coded perspective as white for now.
+            System.out.println(client.drawBoard(((LoadGameMessage) notification).getGame(), ChessGame.TeamColor.WHITE, null ));
+        } else {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.toString());
+        }
+
         printPrompt();
     }
 
